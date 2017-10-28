@@ -55,8 +55,8 @@ class Density:
     s = "";
     if not self.isValid():
       s += "Invalid Density!\n";
-    s += "{:>12}\t{:>12.4f}".format("Expected", self.expected()) + "\n";
-    s += "{:>12}\t{:>12.4f}".format("Stdev", self.stdev()) + "\n";
+    s += "{:>12}\t{:>12.5f}".format("Expected", self.expected()) + "\n";
+    s += "{:>12}\t{:>12.5f}".format("Stdev", self.stdev()) + "\n";
     s += "\n";
     s += "{:>12}\t{:>12}".format("Result", "Probability") + "\n";
     for dKey in sorted(self.densities):
@@ -172,6 +172,20 @@ class Density:
   def stdev(self):
     return math.sqrt(self.variance());
 
+  def plot(self, width=70):
+    maxPerc = max(self.densities.values());
+    minPerc = maxPerc*0.5/width*0.8;
+    plotRes = "\n";
+
+    for key in sorted(self.densities):
+      p = self.densities[key];
+      plotRes += "{0:>12}\t".format(key);
+      numberOfBars = int(round(p*width*1.0/maxPerc));
+      for k in range(1, numberOfBars+1):
+        plotRes += "|";
+      plotRes += "\n";
+    return plotRes;
+
   def summedDensity(self, goal):
     if min(self.densities.keys()) <= 0:
       raise ValueError("summedDensity only works with positive results!");
@@ -193,7 +207,7 @@ class Density:
    
     return Density(densities);
  
- 
+
 class DieDensity(Density):
   def __init__(self, die):
     densities = {};
@@ -246,4 +260,5 @@ twod6 = d6 + d6;
 turnsToSearch = 50;
 summed = twod6.summedDensity(turnsToSearch);
 print summed;
+print summed.plot();
 
