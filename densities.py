@@ -17,7 +17,7 @@ def eval_(node):
       return ConstantDensity(node.n)
     elif isinstance(node, ast.Name):
       nodeStr = node.id
-      match = re.search(r'(m(\d*))?d(\d+)', nodeStr)
+      match = re.search(r'(m(\d*))?([ad]?)d(\d+)', nodeStr)
       if match is None:
         raise TypeError(node)
       else:
@@ -25,7 +25,13 @@ def eval_(node):
           nr = int(match.group(2))
         else:
           nr = 1
-        density = DieDensity(int(match.group(3)))
+        die = int(match.group(4))
+        if match.group(3) == "a":
+          density = AdvantageDieDensity(die)
+        elif match.group(3) == "d":
+          density = DisadvantageDieDensity(die)
+        else:
+          density = DieDensity(die)
         return density.arithMult(nr)
     elif isinstance(node, ast.BinOp):
         return operators[type(node.op)](eval_(node.left), eval_(node.right))
@@ -244,7 +250,7 @@ d10  = DieDensity(10)
 d12  = DieDensity(12)
 d20  = DieDensity(20)
 d100 = DieDensity(100)
-ex   = DieExpression("4+d15+m2d5+2")
+ex   = DieExpression("d4+ad15+m2d5+dd2-2")
 ad20 = AdvantageDieDensity(20)
 dd20 = DisadvantageDieDensity(20)
 
