@@ -210,6 +210,14 @@ class ZeroDensity(ConstantDensity):
   def __init__(self):
     ConstantDensity.__init__(self, 0);
 
+def AdvantageDieDensity(die):
+  dieDensity = DieDensity(die);
+  return dieDensity.binOp(dieDensity, lambda a,b: max(a,b));
+
+def DisadvantageDieDensity(die):
+  dieDensity = DieDensity(die);
+  return dieDensity.binOp(dieDensity, lambda a,b: min(a,b));
+
 def DieExpression(expr):
   return eval_expr(expr);
 
@@ -223,12 +231,17 @@ d12  = DieDensity(12);
 d20  = DieDensity(20);
 d100 = DieDensity(100);
 ex   = DieExpression("4+d15+m2d5+2");
+ad20 = AdvantageDieDensity(20);
+dd20 = DisadvantageDieDensity(20);
 
 #print "{:.4%}".format(d6+d10 <= d8)
 #print d20+d20+4
 #print d3*d6
 #print ex
+#print ad20
+#print dd20
 
+#twod6 = d6.arithMult(2);
 twod6 = d6 + d6;
 turnsToSearch = 50;
 summed = twod6.summedDensity(turnsToSearch);
