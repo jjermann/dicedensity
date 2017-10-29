@@ -12,7 +12,7 @@ def eval_expr(expr):
 
 def eval_(node):
     if isinstance(node, ast.Num):
-      return ConstantDensity(node.n)
+      return Constant(node.n)
     elif isinstance(node, ast.Name):
       nodeStr = node.id
       match = re.search(r'(m(\d*))?([ad]?)d(\d+)', nodeStr)
@@ -25,11 +25,11 @@ def eval_(node):
           nr = 1
         die = int(match.group(4))
         if match.group(3) == "a":
-          resDensity = AdvantageDieDensity(die)
+          resDensity = AdvantageDie(die)
         elif match.group(3) == "d":
-          resDensity = DisadvantageDieDensity(die)
+          resDensity = DisadvantageDie(die)
         else:
-          resDensity = DieDensity(die)
+          resDensity = Die(die)
         return resDensity.arithMult(nr)
     elif isinstance(node, ast.BinOp):
         return operators[type(node.op)](eval_(node.left), eval_(node.right))
@@ -40,7 +40,7 @@ def eval_(node):
 
 def getDensity(arg):
   if isinstance(arg, (int, float)):
-    return ConstantDensity(arg)
+    return Constant(arg)
 
   if isinstance(arg, Density):
     return arg
@@ -86,7 +86,7 @@ class Density:
   def arithMult(self, other):
     if isinstance(other, (int)) and other >= 0:
       if other == 0:
-        return ZeroDensity()
+        return Zero()
       else:
         res = self
         for i in range(other-1):
@@ -201,7 +201,7 @@ class Density:
       raise ValueError("summedDensity only works with positive results!")
 
     densities = {}
-    prevDensity = ZeroDensity()
+    prevDensity = Zero()
     prevProb = 1
     prevKey = 0
  
@@ -218,30 +218,30 @@ class Density:
     return Density(densities)
  
 
-class DieDensity(Density):
+class Die(Density):
   def __init__(self, die):
     densities = {}
     for r in range(1, die+1):
       densities[r] = 1.0 / die
     Density.__init__(self, densities)
  
-class ConstantDensity(Density):
+class Constant(Density):
   def __init__(self, const):
     densities = {const:1.0}
     Density.__init__(self, densities)
  
-class ZeroDensity(ConstantDensity):
+class Zero(Constant):
   def __init__(self):
-    ConstantDensity.__init__(self, 0)
+    Constant.__init__(self, 0)
 
-def AdvantageDieDensity(die):
-  dieDensity = DieDensity(die)
+def AdvantageDie(die):
+  dieDensity = Die(die)
   return dieDensity.binOp(dieDensity, lambda a,b: max(a,b))
 
-def DisadvantageDieDensity(die):
-  dieDensity = DieDensity(die)
+def DisadvantageDie(die):
+  dieDensity = Die(die)
   return dieDensity.binOp(dieDensity, lambda a,b: min(a,b))
 
-def DieExpression(expr):
+def DieExpr(expr):
   return eval_expr(expr)
   

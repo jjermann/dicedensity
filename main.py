@@ -1,23 +1,21 @@
-#!/usr/bin/python3
-
 from densities import *
 
 
 # Define some basic dice
 # -----------------------------
 
-ex   = DieExpression("d5+ad15+m2d7+dd2-2")
-d2   = DieDensity(2)
-d3   = DieDensity(3)
-d4   = DieDensity(4)
-d6   = DieDensity(6)
-d8   = DieDensity(8)
-d10  = DieDensity(10)
-d12  = DieDensity(12)
-d20  = DieDensity(20)
-d100 = DieDensity(100)
-ad20 = AdvantageDieDensity(20)
-dd20 = DisadvantageDieDensity(20)
+ex   = DieExpr("d5+ad15+m2d7+dd2-2")
+d2   = Die(2)
+d3   = Die(3)
+d4   = Die(4)
+d6   = Die(6)
+d8   = Die(8)
+d10  = Die(10)
+d12  = Die(12)
+d20  = Die(20)
+d100 = Die(100)
+ad20 = AdvantageDie(20)
+dd20 = DisadvantageDie(20)
 
 
 # Some examples how to use this
@@ -31,15 +29,17 @@ dd20 = DisadvantageDieDensity(20)
 #print(d20+d20+4)
 #print(d3*d6)
 #print(ex)
+#print(d20)
 #print(ad20)
 #print(dd20)
 
-# Note that 2*d6 simulates a d6 die who's result is multiplied by 3, not d6+d6+d6
+# Note that 3*d6 simulates a d6 die who's result is multiplied by 3, not d6+d6+d6
 #print(3*d6)
-# To get d6+d6+d6, one can use d6+d6+d6 or d6.arithMult(3) or DieExpression("m3d6")
+# To get d6+d6+d6, one can use d6+d6+d6 or d6.arithMult(3) or DieExpr("m3d6")
 #print(d6+d6+d6)
 #print(d6.arithMult(3))
-#print(DieExpression("m3d6"))
+#print(DieExpr("m3d6"))
+
 
 # Probabilities to find a certain number of rations of food when searching for "turnsToSearch" turns
 # -----------------------------
@@ -50,4 +50,5 @@ print(twod6.summedDensity(turnsToSearch))
 
 #Expected number of rations after searching x turns:
 #print(str.join("\n", list(map(lambda turns: "{:>12}\t{:>12.5f}".format(turns, twod6.summedDensity(turns).expected()), range(0,100+1)))))
+
 
