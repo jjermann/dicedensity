@@ -1,5 +1,3 @@
-#!/usr/bin/python
-
 import ast
 import operator as op
 import re
@@ -27,12 +25,12 @@ def eval_(node):
           nr = 1
         die = int(match.group(4))
         if match.group(3) == "a":
-          density = AdvantageDieDensity(die)
+          resDensity = AdvantageDieDensity(die)
         elif match.group(3) == "d":
-          density = DisadvantageDieDensity(die)
+          resDensity = DisadvantageDieDensity(die)
         else:
-          density = DieDensity(die)
-        return density.arithMult(nr)
+          resDensity = DieDensity(die)
+        return resDensity.arithMult(nr)
     elif isinstance(node, ast.BinOp):
         return operators[type(node.op)](eval_(node.left), eval_(node.right))
     elif isinstance(node, ast.UnaryOp):
@@ -41,7 +39,7 @@ def eval_(node):
         raise TypeError(node)
 
 def getDensity(arg):
-  if isinstance(arg, (int, long, float)):
+  if isinstance(arg, (int, float)):
     return ConstantDensity(arg)
 
   if isinstance(arg, Density):
@@ -57,6 +55,15 @@ class Density:
     else:
       raise ValueError("densities must be a density dictionary")
 
+  def _plotBar(self, key, width=70):
+    maxPerc = max(self.densities.values())
+    p = self.densities[key]
+    numberOfBars = int(round(p*width*1.0/maxPerc))
+    plotRes = ""
+    for k in range(1, numberOfBars+1):
+        plotRes += "|"
+    return plotRes
+
   def __str__(self):
     s = ""
     if not self.isValid():
@@ -68,14 +75,16 @@ class Density:
     for dKey in sorted(self.densities):
       prob = self.densities[dKey]
       if prob > 0:
-        s += "{:>12}\t{:>12.4%}".format(dKey, prob) + "\n"
+        s += "{:>12}\t{:>12.4%}".format(dKey, prob)
+        s += "\t" + self._plotBar(dKey, 40)
+        s += "\n"
     return s
  
   def isValid(self):
     return abs(1.0 - sum(self.densities.values())) < 1e-09
 
   def arithMult(self, other):
-    if isinstance(other, (int, long)) and other >= 0:
+    if isinstance(other, (int)) and other >= 0:
       if other == 0:
         return ZeroDensity()
       else:
@@ -84,14 +93,14 @@ class Density:
           res += self
         return res
     else:
-      raise ValueError("other must be a nonnegative int or long!")
+      raise ValueError("other must be a nonnegative int!")
     
-  def binOp(self, other, op):
+  def binOp(self, other, opr):
     otherDensity = getDensity(other)
     resDensity = {}
     for sKey in self.densities.keys():
       for oKey in otherDensity.densities.keys():
-        resKey = op(sKey, oKey)
+        resKey = opr(sKey, oKey)
         if resKey not in resDensity:
           resDensity[resKey] = 0.0
         resDensity[resKey] += 1.0*self.densities[sKey]*otherDensity.densities[oKey]
@@ -110,10 +119,10 @@ class Density:
   __rsub__ = __sub__
   __rmul__ = __mul__
 
-  def op(self, op):
+  def op(self, opr):
     densities = {}
     for key in self.densities.keys():
-      opKey = op(key)
+      opKey = opr(key)
       if opKey not in densities:
         densities[opKey] = 0.0
       densities[opKey] += self.densities[key]
@@ -127,12 +136,12 @@ class Density:
 
   def prob(self, other, cond):
     otherDensity = getDensity(other)
-    sum = 0.0
+    resSum = 0.0
     for sKey in self.densities.keys():
       for oKey in otherDensity.densities.keys():
         if cond(sKey, oKey):
-          sum += self.densities[sKey]*otherDensity.densities[oKey]
-    return sum
+          resSum += self.densities[sKey]*otherDensity.densities[oKey]
+    return resSum
 
   def __eq__(self, y):
     return self.prob(y, lambda a,b: a == b)
@@ -163,32 +172,27 @@ class Density:
     return Density(densities)
 
   def expected(self):
-    sum = 0.0
+    resSum = 0.0
     for key in self.densities.keys():
-      sum += key*self.densities[key]
-    return sum
+      resSum += key*self.densities[key]
+    return resSum
 
   def variance(self):
-    sum = 0.0
+    resSum = 0.0
     expected = self.expected()
     for key in self.densities.keys():
-      sum += (key-expected)**2*self.densities[key]
-    return sum
+      resSum += (key-expected)**2*self.densities[key]
+    return resSum
 
   def stdev(self):
     return math.sqrt(self.variance())
 
   def plot(self, width=70):
-    maxPerc = max(self.densities.values())
-    minPerc = maxPerc*0.5/width*0.8
     plotRes = "\n"
 
     for key in sorted(self.densities):
-      p = self.densities[key]
       plotRes += "{0:>12}\t".format(key)
-      numberOfBars = int(round(p*width*1.0/maxPerc))
-      for k in range(1, numberOfBars+1):
-        plotRes += "|"
+      plotRes += self._plotBar(key, width)
       plotRes += "\n"
     return plotRes
 
@@ -240,31 +244,3 @@ def DisadvantageDieDensity(die):
 
 def DieExpression(expr):
   return eval_expr(expr)
-
-d2   = DieDensity(2)
-d3   = DieDensity(3)
-d4   = DieDensity(4)
-d6   = DieDensity(6)
-d8   = DieDensity(8)
-d10  = DieDensity(10)
-d12  = DieDensity(12)
-d20  = DieDensity(20)
-d100 = DieDensity(100)
-ex   = DieExpression("d4+ad15+m2d5+dd2-2")
-ad20 = AdvantageDieDensity(20)
-dd20 = DisadvantageDieDensity(20)
-
-#print "{:.4%}".format(d6+d10 <= d8)
-#print d20+d20+4
-#print d3*d6
-#print ex
-#print ad20
-#print dd20
-
-#twod6 = d6.arithMult(2)
-twod6 = d6 + d6
-turnsToSearch = 50
-summed = twod6.summedDensity(turnsToSearch)
-print summed
-print summed.plot()
-
