@@ -34,13 +34,17 @@ dd20 = DisadvantageDieDensity(20)
 #print(ad20)
 #print(dd20)
 
+# Note that 2*d6 simulates a d6 die who's result is multiplied by 3, not d6+d6+d6
+#print(3*d6)
+# To get d6+d6+d6, one can use d6+d6+d6 or d6.arithMult(3) or DieExpression("m3d6")
+#print(d6+d6+d6)
+#print(d6.arithMult(3))
+#print(DieExpression("m3d6"))
 
 # Probabilities to find a certain number of rations of food when searching for "turnsToSearch" turns
 # -----------------------------
 
 twod6 = d6 + d6
-#This could also be used for twod6:
-twod6 = d6.arithMult(2)
 turnsToSearch = 50
 print(twod6.summedDensity(turnsToSearch))
 
