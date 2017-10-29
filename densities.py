@@ -4,39 +4,41 @@ import re
 import math
 
 operators = {ast.Add: op.add, ast.Sub: op.sub, ast.Mult: op.mul,
-             ast.Div: op.truediv, ast.Pow: op.pow, ast.BitXor: op.xor,
-             ast.USub: op.neg}
+             ast.USub: op.neg,
+             ast.Eq: op.eq, ast.NotEq: op.ne, ast.Lt: op.lt, ast.LtE: op.le, ast.Gt: op.gt, ast.GtE: op.ge}
 
 def eval_expr(expr):
     return eval_(ast.parse(expr, mode='eval').body)
 
 def eval_(node):
-    if isinstance(node, ast.Num):
-      return Constant(node.n)
-    elif isinstance(node, ast.Name):
-      nodeStr = node.id
-      match = re.search(r'(m(\d*))?([ad]?)d(\d+)', nodeStr)
-      if match is None:
-        raise TypeError(node)
-      else:
-        if match.group(2):
-          nr = int(match.group(2))
-        else:
-          nr = 1
-        die = int(match.group(4))
-        if match.group(3) == "a":
-          resDensity = AdvantageDie(die)
-        elif match.group(3) == "d":
-          resDensity = DisadvantageDie(die)
-        else:
-          resDensity = Die(die)
-        return resDensity.arithMult(nr)
-    elif isinstance(node, ast.BinOp):
-        return operators[type(node.op)](eval_(node.left), eval_(node.right))
-    elif isinstance(node, ast.UnaryOp):
-        return operators[type(node.op)](eval_(node.operand))
+  if isinstance(node, ast.Num):
+    return Constant(node.n)
+  elif isinstance(node, ast.Name):
+    nodeStr = node.id
+    match = re.search(r'(m(\d*))?([ad]?)d(\d+)', nodeStr)
+    if match is None:
+      raise TypeError(node)
     else:
-        raise TypeError(node)
+      if match.group(2):
+        nr = int(match.group(2))
+      else:
+        nr = 1
+      die = int(match.group(4))
+      if match.group(3) == "a":
+        resDensity = AdvantageDie(die)
+      elif match.group(3) == "d":
+        resDensity = DisadvantageDie(die)
+      else:
+        resDensity = Die(die)
+      return resDensity.arithMult(nr)
+  elif isinstance(node, ast.BinOp):
+      return operators[type(node.op)](eval_(node.left), eval_(node.right))
+  elif isinstance(node, ast.UnaryOp):
+      return operators[type(node.op)](eval_(node.operand))
+  elif isinstance(node, ast.Compare) and len(node.ops) == 1 and len(node.comparators) == 1:
+      return operators[type(node.ops[0])](eval_(node.left), eval_(node.comparators[0]))
+  else:
+      raise TypeError(node)
 
 def getDensity(arg):
   if isinstance(arg, (int, float)):
@@ -146,7 +148,7 @@ class Density:
   def __eq__(self, y):
     return self.prob(y, lambda a,b: a == b)
 
-  def __neq__(self, y):
+  def __ne__(self, y):
     return self.prob(y, lambda a,b: a != b)
 
   def __lt__(self, y):
