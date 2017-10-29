@@ -61,7 +61,7 @@ class Density:
     numberOfBars = int(round(p*width*1.0/maxPerc))
     plotRes = ""
     for k in range(1, numberOfBars+1):
-        plotRes += "|"
+        plotRes += "█"
     return plotRes
 
   def __str__(self):
@@ -71,7 +71,7 @@ class Density:
     s += "{:>12}\t{:>12.5f}".format("Expected", self.expected()) + "\n"
     s += "{:>12}\t{:>12.5f}".format("Stdev", self.stdev()) + "\n"
     s += "\n"
-    s += "{:>12}\t{:>12}".format("Result", "Probability") + "\n"
+    s += "{:>12}\t{:>12}\t{}".format("Result", "Probability", "Plot") + "\n"
     for dKey in sorted(self.densities):
       prob = self.densities[dKey]
       if prob > 0:
@@ -244,3 +244,4 @@ def DisadvantageDieDensity(die):
 
 def DieExpression(expr):
   return eval_expr(expr)
+  
