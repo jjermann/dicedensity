@@ -48,3 +48,6 @@ twod6 = d6 + d6
 turnsToSearch = 50
 print(twod6.summedDensity(turnsToSearch))
 
+#Expected number of rations after searching x turns:
+#print(str.join("\n", list(map(lambda turns: "{:>12}\t{:>12.5f}".format(turns, twod6.summedDensity(turns).expected()), range(0,100+1)))))
+
