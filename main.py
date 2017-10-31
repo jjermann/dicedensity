@@ -7,6 +7,8 @@ from densities import *
 # -----------------------------
 
 ex   = DieExpr("d5+ad15+m2d7+dd2-2")
+ex2  = ex.with_advantage()
+ex3  = ex.with_disadvantage()
 d2   = Die(2)
 d3   = Die(3)
 d4   = Die(4)
@@ -31,6 +33,7 @@ dd20 = DisadvantageDie(20)
 #print(d20+d20+4)
 #print(d3*d6)
 #print(ex)
+#print(ex2)
 #print(d20)
 #print(ad20)
 #print(dd20)
@@ -53,4 +56,5 @@ print(twod6.summedDensity(turnsToSearch))
 #Expected number of rations after searching x turns:
 #print(str.join("\n", list(map(lambda turns: "{:>12}\t{:>12.5f}".format(turns, twod6.summedDensity(turns).expected()), range(0,100+1)))))
 
-
+#When using the lower result of rolling d6+d6 twice:
+#print(twod6.with_disadvantage().summedDensity(turnsToSearch))

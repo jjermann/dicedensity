@@ -198,6 +198,12 @@ class Density:
       plotRes += "\n"
     return plotRes
 
+  def with_advantage(self):
+    return self.binOp(self, lambda a,b: max(a,b))
+
+  def with_disadvantage(self):
+    return self.binOp(self, lambda a,b: min(a,b))
+
   def summedDensity(self, goal):
     if min(self.densities.keys()) <= 0:
       raise ValueError("summedDensity only works with positive results!")
@@ -237,12 +243,10 @@ class Zero(Constant):
     Constant.__init__(self, 0)
 
 def AdvantageDie(die):
-  dieDensity = Die(die)
-  return dieDensity.binOp(dieDensity, lambda a,b: max(a,b))
+  return Die(die).with_advantage()
 
 def DisadvantageDie(die):
-  dieDensity = Die(die)
-  return dieDensity.binOp(dieDensity, lambda a,b: min(a,b))
+  return Die(die).with_disadvantage()
 
 def DieExpr(expr):
   return eval_expr(expr)
