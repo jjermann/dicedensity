@@ -2,6 +2,9 @@ import ast
 import operator as op
 import re
 import math
+import heapq
+from itertools import product
+from functools import reduce
 
 operators = {ast.Add: op.add, ast.Sub: op.sub, ast.Mult: op.mul,
              ast.USub: op.neg,
@@ -251,3 +254,29 @@ def DisadvantageDie(die):
 def DieExpr(expr):
   return eval_expr(expr)
   
+class MultiDensity(Density):
+  def __init__(self, *dList):
+    self.densityList = dList
+    Density.__init__(self, sum(self.densityList).densities)
+
+  def multiOp(self, opr):
+    dList = map(lambda k: map(lambda l: [l, k.densities[l]], k.densities.keys()), self.densityList)
+    resDensity = {}
+    for p in product(*dList):
+      resKey = opr(*list(map(lambda k: k[0], p)))
+      if resKey not in resDensity:
+        resDensity[resKey] = 0.0
+      resDensity[resKey] += reduce(op.mul, map(lambda k: k[1], p), 1.0)
+    return Density(resDensity)
+
+  def drop_highest(self, n=1):
+    if n == 1:
+      return self.multiOp(lambda *a: sum(a)-max(a))
+    else:
+      return self.multiOp(lambda *a: sum(a)-sum(heapq.nlargest(n,a)))
+
+  def drop_lowest(self, n=1):
+    if n == 1:
+      return self.multiOp(lambda *a: sum(a)-min(a))
+    else:
+      return self.multiOp(lambda *a: sum(a)-sum(heapq.nsmallest(n,a)))

@@ -49,12 +49,33 @@ dd20 = DisadvantageDie(20)
 # Probabilities to find a certain number of rations of food when searching for "turnsToSearch" turns
 # -----------------------------
 
-twod6 = d6 + d6
-turnsToSearch = 50
-print(twod6.summedDensity(turnsToSearch))
+#twod6 = d6 + d6
+#turnsToSearch = 50
+#print(twod6.summedDensity(turnsToSearch))
 
-#Expected number of rations after searching x turns:
+#Expected number of rations after searching x turns:s
 #print(str.join("\n", list(map(lambda turns: "{:>12}\t{:>12.5f}".format(turns, twod6.summedDensity(turns).expected()), range(0,100+1)))))
 
 #When using the lower result of rolling d6+d6 twice:
 #print(twod6.with_disadvantage().summedDensity(turnsToSearch))
+
+
+# MultiDensity examples
+# -----------------------------
+
+# The follwing describes rolling d2, d6 and d20 and then doing operations on the three rolls.
+roll = MultiDensity(d2, d6, d20)
+print(roll.drop_highest(2))
+print(roll.drop_lowest())
+
+# Take the largest of the three rolls
+print(roll.multiOp(lambda *a: max(a)))
+
+# Note that MultiDensity(d2,d6).drop_lowest() is not the same as MultiDensity(d2,d6).with_advantage().
+# with_advantage simply does the whole roll (of all dice) again and then takes the better final result
+# wheris drop_lowest() will drop the lowest roll of a given list of rolls (here d2 and d6)
+roll2 = MultiDensity(d2,d6)
+# this ranges from 1 to 6
+print(roll2.drop_lowest())
+# this ranges from 2 to 8
+print(roll2.with_advantage())
