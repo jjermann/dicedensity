@@ -83,6 +83,30 @@ dd20 = DisadvantageDie(20)
 
 # Other operations with results
 # -----------------------------
-roll = lambda k: MultiDensity(d20, d20, d20).drop_lowest(2) + k >= d20.with_advantage()
-plotWidth = 50
-print(str.join("\n",list(map(lambda k: "{0}\t{1:.4}\t{2}".format(k, roll(k)*100, '█'*int(round(roll(k)*plotWidth))), range(-20,21)))))
+
+def get_plot(winProbability, minBonus = -20, maxBonus = 20, plotWidth = 50):
+  return str.join("\n",list(map(lambda bonusAttacker:\
+    "{0}\t{1:.4}\t{2}".format(\
+      bonusAttacker,\
+      winProbability(bonusAttacker)*100,\
+      '█'*int(round(winProbability(bonusAttacker)*plotWidth))\
+    ), range(minBonus, maxBonus + 1))))
+
+# 1.0 means the attacker wins, 0.0 means the defender wins
+# as initial parameters the bonusAttacker and bonusDefender have to be passed...
+def successCondition(bonusAttacker, bonusDefender):
+  def finalCondition(attackRoll, defendRoll):
+    if (attackRoll == 1 or defendRoll == 20):
+      return 0.0
+    if (attackRoll + bonusAttacker > defendRoll + bonusDefender):
+      return 1.0
+    if (attackRoll == 20):
+      return 1.0
+    return 0.0
+  return finalCondition
+
+# Win probability of attacker parametrized by bonusAttacker
+winProbability = lambda bonusAttacker: MultiDensity(d20, d20).multiOp(successCondition(bonusAttacker,0)) > 0.0
+#winProbability2 = lambda k: MultiDensity(d20, d20, d20).drop_lowest(2) + k >= d20.with_advantage()
+
+print(get_plot(winProbability, -20, 20))

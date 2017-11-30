@@ -266,7 +266,8 @@ class MultiDensity(Density):
       resKey = opr(*list(map(lambda k: k[0], p)))
       if resKey not in resDensity:
         resDensity[resKey] = 0.0
-      resDensity[resKey] += reduce(op.mul, map(lambda k: k[1], p), 1.0)
+      summand = reduce(op.mul, map(lambda k: k[1], p), 1.0)
+      resDensity[resKey] += summand
     return Density(resDensity)
 
   def drop_highest(self, n=1):
