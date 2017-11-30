@@ -21,6 +21,7 @@ d100 = Die(100)
 ad20 = AdvantageDie(20)
 aad20 = MultiDensity(d20,d20,d20).drop_lowest(2)
 dd20 = DisadvantageDie(20)
+ddd20 = MultiDensity(d20,d20,d20).drop_highest(2)
 
 
 # Some examples how to use this
@@ -109,11 +110,12 @@ def successCondition(bonusAttacker, bonusDefender):
   def finalCondition(attackRoll, defendRoll):
     if (defendRoll == 20):
       return 0.0
-    if (attackRoll + bonusAttacker > defendRoll + bonusDefender):
-      return 1.0
     if (defendRoll == 1):
       return 1.0
-    return 0.0
+    if (attackRoll + bonusAttacker > defendRoll + bonusDefender):
+      return 1.0
+    else:
+      return 0.0
   return finalCondition
 
 # Win probability of attacker parametrized by bonusAttacker
@@ -121,5 +123,5 @@ winProbability = lambda bonusAttacker: MultiDensity(ad20, d20).multiOp(successCo
 #winProbability2 = lambda k: MultiDensity(d20, d20, d20).drop_lowest(2) + k >= d20.with_advantage()
 
 print(get_plot(winProbability, range(-20, 20 + 1)))
-#print(get_simple_plot(winProbability, range(minBonus, maxBonus + 1)))
+#print(get_simple_plot(winProbability, range(-20, 20 + 1)))
 
