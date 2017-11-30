@@ -87,7 +87,7 @@ dd20 = DisadvantageDie(20)
 def plot_line(p, plotWidth):
   filledBars = int(round(p*plotWidth))
   unfilledBars = plotWidth-filledBars
-  return filledBars*'█' + unfilledBars*' ' + '|'
+  return filledBars*'█' + unfilledBars*' ' + '│'
 
 def get_plot(p, inputs = range(-20, 20 + 1), plotWidth = 50):
   return str.join("\n",list(map(lambda k:\
