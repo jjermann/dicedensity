@@ -64,18 +64,25 @@ dd20 = DisadvantageDie(20)
 # -----------------------------
 
 # The follwing describes rolling d2, d6 and d20 and then doing operations on the three rolls.
-roll = MultiDensity(d2, d6, d20)
-print(roll.drop_highest(2))
-print(roll.drop_lowest())
+#mroll1 = MultiDensity(d2, d6, d20)
+#print(mroll1.drop_highest(2))
+#print(mroll1.drop_lowest())
 
 # Take the largest of the three rolls
-print(roll.multiOp(lambda *a: max(a)))
+#print(mroll1.multiOp(lambda *a: max(a)))
 
 # Note that MultiDensity(d2,d6).drop_lowest() is not the same as MultiDensity(d2,d6).with_advantage().
 # with_advantage simply does the whole roll (of all dice) again and then takes the better final result
 # wheris drop_lowest() will drop the lowest roll of a given list of rolls (here d2 and d6)
-roll2 = MultiDensity(d2,d6)
+#mroll2 = MultiDensity(d2,d6)
 # this ranges from 1 to 6
-print(roll2.drop_lowest())
+#print(mroll2.drop_lowest())
 # this ranges from 2 to 8
-print(roll2.with_advantage())
+#print(mroll2.with_advantage())
+
+
+# Other operations with results
+# -----------------------------
+roll = lambda k: MultiDensity(d20, d20, d20).drop_lowest(2) + k >= d20.with_advantage()
+plotWidth = 50
+print(str.join("\n",list(map(lambda k: "{0}\t{1:.4}\t{2}".format(k, roll(k)*100, '█'*int(round(roll(k)*plotWidth))), range(-20,21)))))
