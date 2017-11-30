@@ -86,9 +86,9 @@ dd20 = DisadvantageDie(20)
 
 def get_plot(winProbability, minBonus = -20, maxBonus = 20, plotWidth = 50):
   return str.join("\n",list(map(lambda bonusAttacker:\
-    "{0}\t{1:.4}\t{2}".format(\
+    "{0:>12}\t{1:>12.2%}\t{2}".format(\
       bonusAttacker,\
-      winProbability(bonusAttacker)*100,\
+      winProbability(bonusAttacker),\
       '█'*int(round(winProbability(bonusAttacker)*plotWidth))\
     ), range(minBonus, maxBonus + 1))))
 
