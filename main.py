@@ -89,22 +89,21 @@ def plot_line(p, plotWidth):
   unfilledBars = plotWidth-filledBars
   return filledBars*'█' + unfilledBars*' ' + '|'
 
-def get_plot(winProbability, minBonus = -20, maxBonus = 20, plotWidth = 50):
-  return str.join("\n",list(map(lambda bonusAttacker:\
+def get_plot(p, inputs = range(-20, 20 + 1), plotWidth = 50):
+  return str.join("\n",list(map(lambda k:\
     "{0:>12}\t{1:>12.2%}\t{2}".format(\
-      bonusAttacker,\
-      winProbability(bonusAttacker),\
-      plot_line(winProbability(bonusAttacker),plotWidth)\
-    ), range(minBonus, maxBonus + 1))))
+      k,\
+      p(k),\
+      plot_line(p(k),plotWidth)\
+    ), inputs)))
 
-def get_simple_plot(winProbability, minBonus = -20, maxBonus = 20):
+def get_simple_plot(p, inputs = range(-20, 20 + 1)):
   return str.join("\n",list(map(lambda bonusAttacker:\
-    "{0:.4}".format(winProbability(bonusAttacker)*100),\
-    range(minBonus, maxBonus + 1))))
+    "{0:.4}".format(p(bonusAttacker)*100),\
+    inputs)))
 
 
 # 1.0 means the attacker wins, 0.0 means the defender wins
-# as initial parameters the bonusAttacker and bonusDefender have to be passed...
 def successCondition(bonusAttacker, bonusDefender):
   def finalCondition(attackRoll, defendRoll):
     if (attackRoll == 1 or defendRoll == 20):
@@ -120,6 +119,6 @@ def successCondition(bonusAttacker, bonusDefender):
 winProbability = lambda bonusAttacker: MultiDensity(d20, d20).multiOp(successCondition(bonusAttacker,0)) > 0.0
 #winProbability2 = lambda k: MultiDensity(d20, d20, d20).drop_lowest(2) + k >= d20.with_advantage()
 
-print(get_plot(winProbability, -20, 20))
-#print(get_simple_plot(winProbability, -20, 20))
+print(get_plot(winProbability, range(-20, 20 + 1)))
+#print(get_simple_plot(winProbability, range(minBonus, maxBonus + 1)))
 
