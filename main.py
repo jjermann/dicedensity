@@ -19,6 +19,7 @@ d12  = Die(12)
 d20  = Die(20)
 d100 = Die(100)
 ad20 = AdvantageDie(20)
+aad20 = MultiDensity(d20,d20,d20).drop_lowest(2)
 dd20 = DisadvantageDie(20)
 
 
@@ -106,17 +107,17 @@ def get_simple_plot(p, inputs = range(-20, 20 + 1)):
 # 1.0 means the attacker wins, 0.0 means the defender wins
 def successCondition(bonusAttacker, bonusDefender):
   def finalCondition(attackRoll, defendRoll):
-    if (attackRoll == 1 or defendRoll == 20):
+    if (defendRoll == 20):
       return 0.0
     if (attackRoll + bonusAttacker > defendRoll + bonusDefender):
       return 1.0
-    if (attackRoll == 20):
+    if (defendRoll == 1):
       return 1.0
     return 0.0
   return finalCondition
 
 # Win probability of attacker parametrized by bonusAttacker
-winProbability = lambda bonusAttacker: MultiDensity(d20, d20).multiOp(successCondition(bonusAttacker,0)) > 0.0
+winProbability = lambda bonusAttacker: MultiDensity(ad20, d20).multiOp(successCondition(bonusAttacker,0)) > 0.0
 #winProbability2 = lambda k: MultiDensity(d20, d20, d20).drop_lowest(2) + k >= d20.with_advantage()
 
 print(get_plot(winProbability, range(-20, 20 + 1)))
