@@ -99,7 +99,11 @@ class Density:
         return res
     else:
       raise ValueError("other must be a nonnegative int!")
-    
+
+  def asMultiDensity(self, n):
+    densityList = [self] * n
+    return MultiDensity(*densityList)
+
   def binOp(self, other, opr):
     otherDensity = getDensity(other)
     resDensity = {}

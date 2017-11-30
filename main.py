@@ -19,9 +19,9 @@ d12  = Die(12)
 d20  = Die(20)
 d100 = Die(100)
 ad20 = AdvantageDie(20)
-aad20 = MultiDensity(d20,d20,d20).drop_lowest(2)
+aad20 = d20.asMultiDensity(3).drop_lowest(2)
 dd20 = DisadvantageDie(20)
-ddd20 = MultiDensity(d20,d20,d20).drop_highest(2)
+ddd20 = d20.asMultiDensity(3).drop_highest(2)
 
 
 # Some examples how to use this
