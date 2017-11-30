@@ -92,6 +92,12 @@ def get_plot(winProbability, minBonus = -20, maxBonus = 20, plotWidth = 50):
       '█'*int(round(winProbability(bonusAttacker)*plotWidth))\
     ), range(minBonus, maxBonus + 1))))
 
+def get_simple_plot(winProbability, minBonus = -20, maxBonus = 20):
+  return str.join("\n",list(map(lambda bonusAttacker:\
+    "{0:.4}".format(winProbability(bonusAttacker)*100),\
+    range(minBonus, maxBonus + 1))))
+
+
 # 1.0 means the attacker wins, 0.0 means the defender wins
 # as initial parameters the bonusAttacker and bonusDefender have to be passed...
 def successCondition(bonusAttacker, bonusDefender):
@@ -110,3 +116,5 @@ winProbability = lambda bonusAttacker: MultiDensity(d20, d20).multiOp(successCon
 #winProbability2 = lambda k: MultiDensity(d20, d20, d20).drop_lowest(2) + k >= d20.with_advantage()
 
 print(get_plot(winProbability, -20, 20))
+#print(get_simple_plot(winProbability, -20, 20))
+
