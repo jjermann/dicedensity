@@ -113,7 +113,7 @@ def spellDuration(bonusAttacker, bonusDefender):
   return finalDuration
 
 # Win probability of attacker (cases where spellDuration > 0.0), parametrized by bonusAttacker
-attackerDie = d20.asMultiDensity(2).drop_highest(1)
+attackerDie = d20.asMultiDensity(2).drop_lowest(1)
 defenderDie = d20
 durationDensity = lambda bonusAttacker: MultiDensity(attackerDie, defenderDie).multiOp(spellDuration(bonusAttacker, 0))
 winProbability = lambda bonusAttacker: durationDensity(bonusAttacker) > 0
@@ -121,7 +121,8 @@ winProbability = lambda bonusAttacker: durationDensity(bonusAttacker) > 0
 expectedDuration = lambda bonusAttacker: durationDensity(bonusAttacker).expected()
 
 #print(get_plot(winProbability, range(-20, 20 + 1), asPercentage = True))
-print(get_plot(expectedDuration, range(-20, 20 + 1), plotWidth=50, maxP=18))
+print(get_plot(expectedDuration, range(-20, 20 + 1), plotWidth=50, maxP=30))
 #print(get_simple_plot(winProbability, range(-20, 20 + 1)))
-#print(durationDensity(0))
+print("\n")
+print(durationDensity(0))
 
