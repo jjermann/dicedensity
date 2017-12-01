@@ -56,7 +56,7 @@ ddd20 = d20.asMultiDensity(3).drop_highest(2)
 #print(twod6.summedDensity(turnsToSearch))
 
 #Expected number of rations after searching x turns:s
-#print(str.join("\n", list(map(lambda turns: "{:>12}\t{:>12.5f}".format(turns, twod6.summedDensity(turns).expected()), range(0,100+1)))))
+#print(get_plot(lambda turns: twod6.summedDensity(turns).expected(), range(0,100 + 1), 70, 15))
 
 #When using the lower result of rolling d6+d6 twice:
 #print(twod6.with_disadvantage().summedDensity(turnsToSearch))
@@ -86,25 +86,6 @@ ddd20 = d20.asMultiDensity(3).drop_highest(2)
 # Other operations with results
 # -----------------------------
 
-def plot_line(p, plotWidth):
-  filledBars = int(round(p*plotWidth))
-  unfilledBars = plotWidth-filledBars
-  return filledBars*'█' + unfilledBars*' ' + '│'
-
-def get_plot(p, inputs = range(-20, 20 + 1), plotWidth = 50):
-  return str.join("\n",list(map(lambda k:\
-    "{0:>12}\t{1:>12.2%}\t{2}".format(\
-      k,\
-      p(k),\
-      plot_line(p(k),plotWidth)\
-    ), inputs)))
-
-def get_simple_plot(p, inputs = range(-20, 20 + 1)):
-  return str.join("\n",list(map(lambda bonusAttacker:\
-    "{0:.4}".format(p(bonusAttacker)*100),\
-    inputs)))
-
-
 # 1.0 means the attacker wins, 0.0 means the defender wins
 def successCondition(bonusAttacker, bonusDefender):
   def finalCondition(attackRoll, defendRoll):
@@ -119,8 +100,9 @@ def successCondition(bonusAttacker, bonusDefender):
   return finalCondition
 
 # Win probability of attacker parametrized by bonusAttacker
-winProbability = lambda bonusAttacker: MultiDensity(ad20, d20).multiOp(successCondition(bonusAttacker,0)) > 0.0
-#winProbability2 = lambda k: MultiDensity(d20, d20, d20).drop_lowest(2) + k >= d20.with_advantage()
+attackerDie = d20.asMultiDensity(3).drop_highest(2)
+defenderDie = d20
+winProbability = lambda bonusAttacker: MultiDensity(attackerDie, defenderDie).multiOp(successCondition(bonusAttacker,0)) > 0.0
 
 print(get_plot(winProbability, range(-20, 20 + 1)))
 #print(get_simple_plot(winProbability, range(-20, 20 + 1)))

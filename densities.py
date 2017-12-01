@@ -52,6 +52,23 @@ def getDensity(arg):
   else:
     raise ValueError("arg must be a Density or a number!")
 
+def plot_line(p, maxP, plotWidth):
+  filledBars = int(round(1.0*p*plotWidth/maxP))
+  unfilledBars = plotWidth-filledBars
+  return filledBars*'█' + unfilledBars*' ' + '│'
+
+def get_plot(p, inputs = range(-20, 20 + 1), plotWidth = 50, maxP=1.0):
+  return str.join("\n",list(map(lambda k:\
+    "{0:>12}\t{1:>12.2%}\t{2}".format(\
+      k,\
+      p(k),\
+      plot_line(p(k),maxP,plotWidth)\
+    ), inputs)))
+
+def get_simple_plot(p, inputs = range(-20, 20 + 1)):
+  return str.join("\n",list(map(lambda k:\
+    "{0:.4}".format(p(k)*100),\
+    inputs)))
           
 class Density:
   def __init__(self, densities):
@@ -59,15 +76,6 @@ class Density:
       self.densities = densities
     else:
       raise ValueError("densities must be a density dictionary")
-
-  def _plotBar(self, key, width=70):
-    maxPerc = max(self.densities.values())
-    p = self.densities[key]
-    numberOfBars = int(round(p*width*1.0/maxPerc))
-    plotRes = ""
-    for k in range(1, numberOfBars+1):
-        plotRes += "█"
-    return plotRes
 
   def __str__(self):
     s = ""
@@ -77,12 +85,7 @@ class Density:
     s += "{:>12}\t{:>12.5f}".format("Stdev", self.stdev()) + "\n"
     s += "\n"
     s += "{:>12}\t{:>12}\t{}".format("Result", "Probability", "Plot") + "\n"
-    for dKey in sorted(self.densities):
-      prob = self.densities[dKey]
-      if prob > 0:
-        s += "{:>12}\t{:>12.4%}".format(dKey, prob)
-        s += "\t" + self._plotBar(dKey, 40)
-        s += "\n"
+    s += self.plot(50)
     return s
  
   def isValid(self):
@@ -197,13 +200,8 @@ class Density:
     return math.sqrt(self.variance())
 
   def plot(self, width=70):
-    plotRes = "\n"
-
-    for key in sorted(self.densities):
-      plotRes += "{0:>12}\t".format(key)
-      plotRes += self._plotBar(key, width)
-      plotRes += "\n"
-    return plotRes
+    maxPerc = max(self.densities.values())
+    return get_plot(lambda k: self.densities[k], sorted(self.densities.keys()), width, maxPerc) + "\n"
 
   def with_advantage(self):
     return self.binOp(self, lambda a,b: max(a,b))
