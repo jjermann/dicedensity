@@ -57,9 +57,13 @@ def plot_line(p, maxP, plotWidth):
   unfilledBars = plotWidth-filledBars
   return filledBars*'█' + unfilledBars*' ' + '│'
 
-def get_plot(p, inputs = range(-20, 20 + 1), plotWidth = 50, maxP=1.0):
+def get_plot(p, inputs = range(-20, 20 + 1), plotWidth = 50, maxP = 1.0, asPercentage = False):
+  if asPercentage:
+    formatString = "{0:>12}\t{1:>12.2%}\t{2}"
+  else:
+    formatString = "{0:>12}\t{1:>12.4}\t{2}"
   return str.join("\n",list(map(lambda k:\
-    "{0:>12}\t{1:>12.2%}\t{2}".format(\
+    formatString.format(\
       k,\
       p(k),\
       plot_line(p(k),maxP,plotWidth)\
@@ -201,7 +205,7 @@ class Density:
 
   def plot(self, width=70):
     maxPerc = max(self.densities.values())
-    return get_plot(lambda k: self.densities[k], sorted(self.densities.keys()), width, maxPerc) + "\n"
+    return get_plot(lambda k: self.densities[k], sorted(self.densities.keys()), width, maxPerc, True) + "\n"
 
   def with_advantage(self):
     return self.binOp(self, lambda a,b: max(a,b))

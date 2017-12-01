@@ -86,24 +86,28 @@ ddd20 = d20.asMultiDensity(3).drop_highest(2)
 # Other operations with results
 # -----------------------------
 
-# 1.0 means the attacker wins, 0.0 means the defender wins
-def successCondition(bonusAttacker, bonusDefender):
-  def finalCondition(attackRoll, defendRoll):
+# > 0 means the attacker wins, 0 means the defender wins
+# in fact we specify the amount by which the attacker wins so it can be used for spellDuration as well
+def spellDuration(bonusAttacker, bonusDefender):
+  def finalDuration(attackRoll, defendRoll):
     if (defendRoll == 20):
-      return 0.0
+      return 0
     if (defendRoll == 1):
-      return 1.0
+      return 1
     if (attackRoll + bonusAttacker > defendRoll + bonusDefender):
-      return 1.0
+      return (attackRoll + bonusAttacker) - (defendRoll + bonusDefender)
     else:
-      return 0.0
-  return finalCondition
+      return 0
+  return finalDuration
 
-# Win probability of attacker parametrized by bonusAttacker
+# Win probability of attacker (cases where spellDuration > 0.0), parametrized by bonusAttacker
 attackerDie = d20.asMultiDensity(3).drop_highest(2)
 defenderDie = d20
-winProbability = lambda bonusAttacker: MultiDensity(attackerDie, defenderDie).multiOp(successCondition(bonusAttacker,0)) > 0.0
+durationDensity = lambda bonusAttacker: MultiDensity(attackerDie, defenderDie).multiOp(spellDuration(bonusAttacker, 0))
+winProbability = lambda bonusAttacker: durationDensity(bonusAttacker) > 0
+expectedDuration = lambda bonusAttacker: durationDensity(bonusAttacker).expected()
 
-print(get_plot(winProbability, range(-20, 20 + 1)))
+print(get_plot(winProbability, range(-20, 20 + 1), asPercentage = True))
+#print(get_plot(expectedDuration, range(-20, 20 + 1), plotWidth=50, maxP=15))
 #print(get_simple_plot(winProbability, range(-20, 20 + 1)))
-
+#print(durationDensity(0))
