@@ -53,8 +53,8 @@ def getDensity(arg):
     raise ValueError("arg must be a Density or a number!")
 
 def plot_line(p, minP, maxP, plotWidth):
-  aboveMax = p > maxP
-  belowMin = p < minP
+  aboveMax = p - maxP > 1e-9
+  belowMin = minP - p > 1e-9
 
   p = max(p, minP)
   p = min(p, maxP)
@@ -77,8 +77,8 @@ def plot_line(p, minP, maxP, plotWidth):
   return result
 
 def centered_plot_line(p, minP, maxP, plotWidth):
-  aboveMax = p > maxP
-  belowMin = p < minP
+  aboveMax = p - maxP > 1e-9
+  belowMin = minP - p > 1e-9
 
   p = max(p, minP)
   p = min(p, maxP)
@@ -156,8 +156,14 @@ class Density:
   def __repr__(self):
     return self.__str__()
 
+  def keys(self):
+    return self.densities.keys()
+
+  def values(self):
+    return self.densities.values()
+
   def isValid(self):
-    return abs(1.0 - sum(self.densities.values())) < 1e-09
+    return abs(1.0 - sum(self.values())) < 1e-09
 
   def arithMult(self, other):
     if isinstance(other, (int)) and other >= 0:
@@ -178,7 +184,7 @@ class Density:
   def binOp(self, other, opr):
     otherDensity = getDensity(other)
     resDensity = {}
-    for sKey in self.densities.keys():
+    for sKey in self.keys():
       for oKey in otherDensity.densities.keys():
         resKey = opr(sKey, oKey)
         if resKey not in resDensity:
@@ -201,7 +207,7 @@ class Density:
 
   def op(self, opr):
     densities = {}
-    for key in self.densities.keys():
+    for key in self.keys():
       opKey = opr(key)
       if opKey not in densities:
         densities[opKey] = 0.0
@@ -217,7 +223,7 @@ class Density:
   def prob(self, other, cond):
     otherDensity = getDensity(other)
     resSum = 0.0
-    for sKey in self.densities.keys():
+    for sKey in self.keys():
       for oKey in otherDensity.densities.keys():
         if cond(sKey, oKey):
           resSum += self.densities[sKey]*otherDensity.densities[oKey]
@@ -243,7 +249,7 @@ class Density:
 
   def conditionalDensity(self, cond):
     densities = {}
-    for key in self.densities.keys():
+    for key in self.keys():
       if cond(key):
         densities[key] = self.densities[key]
     condProb = sum(densities.values())
@@ -253,23 +259,26 @@ class Density:
 
   def expected(self):
     resSum = 0.0
-    for key in self.densities.keys():
+    for key in self.keys():
       resSum += key*self.densities[key]
     return resSum
 
   def variance(self):
     resSum = 0.0
     expected = self.expected()
-    for key in self.densities.keys():
+    for key in self.keys():
       resSum += (key-expected)**2*self.densities[key]
     return resSum
 
   def stdev(self):
     return math.sqrt(self.variance())
 
+  def cdf(self, x):
+    return self <= x;
+
   def plot(self, width=70):
-    maxPerc = max(self.densities.values())
-    return get_plot(lambda k: self.densities[k], sorted(self.densities.keys()), plotWidth=width, minP=0.0, maxP=maxPerc, asPercentage=True) + "\n"
+    maxPerc = max(self.values())
+    return get_plot(lambda k: self.densities[k], sorted(self.keys()), plotWidth=width, minP=0.0, maxP=maxPerc, asPercentage=True) + "\n"
 
   def with_advantage(self):
     return self.binOp(self, lambda a,b: max(a,b))
@@ -278,7 +287,7 @@ class Density:
     return self.binOp(self, lambda a,b: min(a,b))
 
   def summedDensity(self, goal):
-    if min(self.densities.keys()) <= 0:
+    if min(self.keys()) <= 0:
       raise ValueError("summedDensity only works with positive results!")
 
     densities = {}
@@ -305,7 +314,7 @@ class Die(Density):
     for r in range(1, die+1):
       densities[r] = 1.0 / die
     Density.__init__(self, densities)
- 
+
 class Constant(Density):
   def __init__(self, const):
     densities = {const:1.0}
