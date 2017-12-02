@@ -53,9 +53,17 @@ def getDensity(arg):
     raise ValueError("arg must be a Density or a number!")
 
 def plot_line(p, maxP, plotWidth):
-  filledBars = int(round(1.0*p*plotWidth/maxP))
+  width = 1.0*p*plotWidth/maxP
+  aboveMax = width > plotWidth
+  width = min(width, plotWidth)
+  filledBars = int(round(width))
   unfilledBars = plotWidth-filledBars
-  return filledBars*'█' + unfilledBars*' ' + '│'
+  result = filledBars*'█' + unfilledBars*' '
+  if aboveMax:
+    result += '█'
+  else:
+    result += '│'
+  return result
 
 def get_plot(p, inputs = range(-20, 20 + 1), plotWidth = 50, maxP = 1.0, asPercentage = False):
   if asPercentage:
