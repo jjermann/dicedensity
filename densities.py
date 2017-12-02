@@ -52,20 +52,36 @@ def getDensity(arg):
   else:
     raise ValueError("arg must be a Density or a number!")
 
-def plot_line(p, maxP, plotWidth):
-  width = 1.0*p*plotWidth/maxP
+def plot_line(p, minP, maxP, plotWidth):
+  minBelowZero = minP < 0
+  maxAboveZero = maxP > 0
+
+  width = 1.0*(p-minP)*plotWidth/(maxP-minP)
   aboveMax = width > plotWidth
+  belowMin = width < 0
   width = min(width, plotWidth)
+  width = max(width, 0)
+
   filledBars = int(round(width))
   unfilledBars = plotWidth-filledBars
-  result = filledBars*'█' + unfilledBars*' '
+  mainContent = filledBars*'█' + unfilledBars*' '
+  if minBelowZero and maxAboveZero:
+    zeroPosition = int(round(1.0*(-minP)*plotWidth/(maxP-minP)))
+    if zeroPosition > 0 and zeroPosition < plotWidth:
+      mainContent = mainContent[:zeroPosition] + '│' + mainContent[zeroPosition + 1:]
+
+  if belowMin:
+    result = '█'
+  else:
+    result = '│'
+  result += mainContent
   if aboveMax:
     result += '█'
   else:
     result += '│'
   return result
 
-def get_plot(p, inputs = range(-20, 20 + 1), plotWidth = 50, maxP = 1.0, asPercentage = False):
+def get_plot(p, inputs = range(-20, 20 + 1), plotWidth = 50, minP = 0.0, maxP = 1.0, asPercentage = False):
   if asPercentage:
     formatString = "{0:>12}\t{1:>12.2%}\t{2}"
   else:
@@ -74,12 +90,16 @@ def get_plot(p, inputs = range(-20, 20 + 1), plotWidth = 50, maxP = 1.0, asPerce
     formatString.format(\
       k,\
       p(k),\
-      plot_line(p(k),maxP,plotWidth)\
+      plot_line(p(k),minP,maxP,plotWidth)\
     ), inputs)))
 
-def get_simple_plot(p, inputs = range(-20, 20 + 1)):
+def get_simple_plot(p, inputs = range(-20, 20 + 1), plotWidth = 50, minP = 0.0, maxP = 1.0, asPercentage = False):
+  if asPercentage:
+    formatString = "{0:.2%}"
+  else:
+    formatString = "{0:.4}"
   return str.join("\n",list(map(lambda k:\
-    "{0:.4}".format(p(k)*100),\
+    formatString.format(p(k)),\
     inputs)))
           
 class Density:
@@ -216,7 +236,7 @@ class Density:
 
   def plot(self, width=70):
     maxPerc = max(self.densities.values())
-    return get_plot(lambda k: self.densities[k], sorted(self.densities.keys()), width, maxPerc, True) + "\n"
+    return get_plot(lambda k: self.densities[k], sorted(self.densities.keys()), plotWidth=width, minP=0.0, maxP=maxPerc, asPercentage=True) + "\n"
 
   def with_advantage(self):
     return self.binOp(self, lambda a,b: max(a,b))

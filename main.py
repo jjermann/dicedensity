@@ -56,7 +56,7 @@ ddd20 = d20.asMultiDensity(3).drop_highest(2)
 #print(twod6.summedDensity(turnsToSearch))
 
 #Expected number of rations after searching x turns:s
-#print(get_plot(lambda turns: twod6.summedDensity(turns).expected(), range(0,100 + 1), 70, 15))
+#print(get_plot(lambda turns: twod6.summedDensity(turns).expected(), range(0,100 + 1), plotWidth=70, maxP=15))
 
 #When using the lower result of rolling d6+d6 twice:
 #print(twod6.with_disadvantage().summedDensity(turnsToSearch))
@@ -121,10 +121,11 @@ winProbability = lambda bonusAttacker: durationDensity(bonusAttacker) > 0
 expectedDuration = lambda bonusAttacker: durationDensity(bonusAttacker).expected()
 
 #print(get_plot(winProbability, range(-20, 20 + 1), asPercentage = True))
-print(get_plot(expectedDuration, range(-20, 20 + 1), plotWidth=50, maxP=30))
-#print(get_simple_plot(winProbability, range(-20, 20 + 1)))
+print(get_plot(expectedDuration, range(-20, 20 + 1), plotWidth=50, minP=0, maxP=30))
+# Just replace "get_plot" with "get_simple_plot" to get only the results
+
 print("\n")
 print(durationDensity(0))
-# durationDensity(0) *given* the attacker wins
+# durationDensity(0) *given* the attacker wins:
 #print(durationDensity(0).conditionalDensity(lambda k: k > 0))
 
