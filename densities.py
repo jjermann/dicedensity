@@ -307,7 +307,7 @@ class Density:
 
   def plot(self, width=70):
     maxPerc = max(self.values())
-    return get_plot(lambda k: self.densities[k], sorted(self.keys()), plotWidth=width, minP=0.0, maxP=maxPerc, asPercentage=True) + "\n"
+    return get_plot(lambda k: self.densities[k], sorted(self.keys()), plotWidth=width, minP=0.0, maxP=maxPerc, asPercentage=True)
 
   def with_advantage(self):
     return self.binOp(self, lambda a,b: max(a,b))
