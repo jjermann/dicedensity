@@ -113,7 +113,7 @@ def get_plot(p, inputs = range(-20, 20 + 1), plotWidth = 50, minP = None, maxP =
   if asPercentage:
     formatString = "{0:>12}\t{1:>12.2%}\t{2}"
   else:
-    formatString = "{0:>12}\t{1:>12.4}\t{2}"
+    formatString = "{0:>12}\t{1:>12}\t{2}"
   if centered:
     plotFunction = centered_plot_line
   else:
@@ -121,8 +121,8 @@ def get_plot(p, inputs = range(-20, 20 + 1), plotWidth = 50, minP = None, maxP =
 
   return str.join("\n",list(map(lambda k:\
     formatString.format(\
-      k,\
-      p(k),\
+      round(k,4),\
+      round(p(k), 4),\
       plotFunction(p(k),minP,maxP,plotWidth)\
     ), inputs)))
 
@@ -130,9 +130,9 @@ def get_simple_plot(p, inputs = range(-20, 20 + 1), plotWidth = 50, minP = None,
   if asPercentage:
     formatString = "{0:.2%}"
   else:
-    formatString = "{0:.4}"
+    formatString = "{0}"
   return str.join("\n",list(map(lambda k:\
-    formatString.format(p(k)),\
+    formatString.format(round(p(k), 4)),\
     inputs)))
 
 class Density:
