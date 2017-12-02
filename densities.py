@@ -5,6 +5,7 @@ import math
 import heapq
 from itertools import product
 from functools import reduce
+from statistics import median
 
 operators = {ast.Add: op.add, ast.Sub: op.sub, ast.Mult: op.mul,
              ast.USub: op.neg,
@@ -137,6 +138,7 @@ def get_simple_plot(p, inputs = range(-20, 20 + 1), plotWidth = 50, minP = None,
 
 class Density:
   def __init__(self, densities):
+    self._cdfList = None
     if isinstance(densities, dict):
       self.densities = densities
     else:
@@ -275,6 +277,33 @@ class Density:
 
   def cdf(self, x):
     return self <= x;
+
+  def _getCdfList(self):
+    if self._cdfList is None:
+      self._cdfList = [ [k,self.cdf(k)] for k in sorted(self.keys()) ]
+    return self._cdfList
+
+  def inverseCdf(self, p):
+    if p < 0.0 or p > 1.0:
+      raise ValueError("Argument must be a probability (0<=p<=1)!")
+    for it in self._getCdfList():
+      if it[1] >= p:
+        return it[0]
+    return self._getCdfList()[-1][0]
+
+  def median(self):
+    sortedKeys = sorted(self.keys())
+    el = self.inverseCdf(0.5)
+    elIndex = sortedKeys.index(el)
+    if (self.cdf(el) - 0.5) < 1e-9:
+      candidates = [ it[0] for it in self._getCdfList() if abs(it[1]-0.5) < 1e-9 ]
+      return median(candidates)
+    else:
+      if elIndex == 0:
+        return el
+      else:
+        elPrev = sortedKeys[elIndex-1]
+        return (el + elPrev)/2.0
 
   def plot(self, width=70):
     maxPerc = max(self.values())
