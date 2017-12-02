@@ -159,10 +159,10 @@ class Density:
     return self.__str__()
 
   def keys(self):
-    return self.densities.keys()
+    return sorted(self.densities.keys())
 
   def values(self):
-    return self.densities.values()
+    return [ self.densities[k] for k in self.keys() ]
 
   def isValid(self):
     return abs(1.0 - sum(self.values())) < 1e-09
