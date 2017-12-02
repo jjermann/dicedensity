@@ -120,12 +120,26 @@ winProbability = lambda bonusAttacker: durationDensity(bonusAttacker) > 0
 #winProbability = lambda bonusAttacker: MultiDensity(attackerDie, defenderDie).multiOp(successCondition(bonusAttacker, 0)) > 0
 expectedDuration = lambda bonusAttacker: durationDensity(bonusAttacker).expected()
 
-#print(get_plot(winProbability, range(-20, 20 + 1), asPercentage = True))
-print(get_plot(expectedDuration, range(-20, 20 + 1), plotWidth=50))
-# Just replace "get_plot" with "get_simple_plot" to get only the results
+# Plotting
+# -----------------------------
+# get_plot(p, inputs = range(-20, 20 + 1), plotWidth = 50, minP = None, maxP = None, asPercentage = False, centered = True)
+# - p is the function to plot, e.g. "lambda k: durationDensity(k).expected()" or "winProbability"
+# - inputs are the function inputs, e.g. range(-20, 20 + 1)
+# - plotWidth is the plot size (default 50)
+# - minP/maxP are the desired range for plotting,
+#   by default minP is 0 or the minimal result if that's below zero
+#   by default maxP is the maximal result
+# - asPercentage determines if the results are shown as percentages (default False)
+# - centered determines if negative results are drawn "away from zero" or not (default True)
+# In case only the second column is desired (e.g. to copy results), replace "get_plot" by "get_simple_plot"
+#
+# Example:
+# print(get_plot(winProbability, range(-20, 20 + 1), plotWidth = 50, minP = 0.0, maxP = 1.0, centered = True, asPercentage = True))
 
+print(get_plot(expectedDuration))
 print("\n")
 print(durationDensity(0))
+
 # durationDensity(0) *given* the attacker wins:
 #print(durationDensity(0).conditionalDensity(lambda k: k > 0))
 
