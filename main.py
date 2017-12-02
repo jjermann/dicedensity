@@ -125,4 +125,6 @@ print(get_plot(expectedDuration, range(-20, 20 + 1), plotWidth=50, maxP=30))
 #print(get_simple_plot(winProbability, range(-20, 20 + 1)))
 print("\n")
 print(durationDensity(0))
+# durationDensity(0) *given* the attacker wins
+#print(durationDensity(0).conditionalDensity(lambda k: k > 0))
 

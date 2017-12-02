@@ -100,6 +100,9 @@ class Density:
     s += self.plot(50)
     return s
  
+  def __repr__(self):
+    return self.__str__()
+
   def isValid(self):
     return abs(1.0 - sum(self.densities.values())) < 1e-09
 
