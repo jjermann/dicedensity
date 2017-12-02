@@ -53,22 +53,46 @@ def getDensity(arg):
     raise ValueError("arg must be a Density or a number!")
 
 def plot_line(p, minP, maxP, plotWidth):
-  minBelowZero = minP < 0
-  maxAboveZero = maxP > 0
+  aboveMax = p > maxP
+  belowMin = p < minP
 
-  width = 1.0*(p-minP)*plotWidth/(maxP-minP)
-  aboveMax = width > plotWidth
-  belowMin = width < 0
-  width = min(width, plotWidth)
-  width = max(width, 0)
+  p = max(p, minP)
+  p = min(p, maxP)
+  filledWidth = int(round(1.0*(p-minP)*plotWidth/(maxP-minP)))
+  zeroPosition = int(round(1.0*(-minP)*plotWidth/(maxP-minP)))
 
-  filledBars = int(round(width))
-  unfilledBars = plotWidth-filledBars
-  mainContent = filledBars*'█' + unfilledBars*' '
-  if minBelowZero and maxAboveZero:
-    zeroPosition = int(round(1.0*(-minP)*plotWidth/(maxP-minP)))
-    if zeroPosition > 0 and zeroPosition < plotWidth:
-      mainContent = mainContent[:zeroPosition] + '│' + mainContent[zeroPosition + 1:]
+  mainContent = filledWidth*'█' + (plotWidth-filledWidth)*' '
+  if zeroPosition > 0 and zeroPosition < plotWidth:
+    mainContent = mainContent[:zeroPosition] + '│' + mainContent[zeroPosition + 1:]
+
+  if belowMin:
+    result = '│'
+  else:
+    result = '█'
+  result += mainContent
+  if aboveMax:
+    result += '█'
+  else:
+    result += '│'
+  return result
+
+def centered_plot_line(p, minP, maxP, plotWidth):
+  aboveMax = p > maxP
+  belowMin = p < minP
+
+  p = max(p, minP)
+  p = min(p, maxP)
+  filledWidth = int(round(1.0*abs(p)*plotWidth/(maxP-minP)))
+  zeroPosition = int(round(1.0*(-minP)*plotWidth/(maxP-minP)))
+
+  mainContent = plotWidth*' '
+  if p >= 0:
+    mainContent = mainContent[:zeroPosition] + filledWidth*'█' + mainContent[zeroPosition + filledWidth:]
+  else:
+    mainContent = mainContent[:zeroPosition - filledWidth] + filledWidth*'█' + mainContent[zeroPosition:]
+
+  if zeroPosition > 0 and zeroPosition < plotWidth:
+    mainContent = mainContent[:zeroPosition] + '│' + mainContent[zeroPosition + 1:]
 
   if belowMin:
     result = '█'
@@ -81,19 +105,24 @@ def plot_line(p, minP, maxP, plotWidth):
     result += '│'
   return result
 
-def get_plot(p, inputs = range(-20, 20 + 1), plotWidth = 50, minP = 0.0, maxP = 1.0, asPercentage = False):
+def get_plot(p, inputs = range(-20, 20 + 1), plotWidth = 50, minP = 0.0, maxP = 1.0, asPercentage = False, centered = True):
   if asPercentage:
     formatString = "{0:>12}\t{1:>12.2%}\t{2}"
   else:
     formatString = "{0:>12}\t{1:>12.4}\t{2}"
+  if centered:
+    plotFunction = centered_plot_line
+  else:
+    plotFunction = plot_line
+
   return str.join("\n",list(map(lambda k:\
     formatString.format(\
       k,\
       p(k),\
-      plot_line(p(k),minP,maxP,plotWidth)\
+      plotFunction(p(k),minP,maxP,plotWidth)\
     ), inputs)))
 
-def get_simple_plot(p, inputs = range(-20, 20 + 1), plotWidth = 50, minP = 0.0, maxP = 1.0, asPercentage = False):
+def get_simple_plot(p, inputs = range(-20, 20 + 1), plotWidth = 50, minP = 0.0, maxP = 1.0, asPercentage = False, centered = True):
   if asPercentage:
     formatString = "{0:.2%}"
   else:
@@ -101,7 +130,7 @@ def get_simple_plot(p, inputs = range(-20, 20 + 1), plotWidth = 50, minP = 0.0, 
   return str.join("\n",list(map(lambda k:\
     formatString.format(p(k)),\
     inputs)))
-          
+
 class Density:
   def __init__(self, densities):
     if isinstance(densities, dict):
@@ -119,7 +148,7 @@ class Density:
     s += "{:>12}\t{:>12}\t{}".format("Result", "Probability", "Plot") + "\n"
     s += self.plot(50)
     return s
- 
+
   def __repr__(self):
     return self.__str__()
 
@@ -158,7 +187,7 @@ class Density:
 
   def __sub__(self, other):
     return self + (-other)
-  
+
   def __mul__(self, other):
     return self.binOp(other, lambda a,b: a*b)
 
@@ -252,19 +281,19 @@ class Density:
     prevDensity = Zero()
     prevProb = 1
     prevKey = 0
- 
+
     while (prevProb > 0):
       tDensity = prevDensity.conditionalDensity(lambda k: k <= goal) + self
       tProb = tDensity.prob(goal, lambda a,b: a > b)*prevProb
       if (tProb > 0):
         densities[prevKey] = tProb
- 
+
       prevDensity += self
       prevProb = prevDensity.prob(goal, lambda a,b: a <= b)
       prevKey += 1
-   
+
     return Density(densities)
- 
+
 
 class Die(Density):
   def __init__(self, die):
@@ -277,7 +306,7 @@ class Constant(Density):
   def __init__(self, const):
     densities = {const:1.0}
     Density.__init__(self, densities)
- 
+
 class Zero(Constant):
   def __init__(self):
     Constant.__init__(self, 0)
@@ -290,7 +319,7 @@ def DisadvantageDie(die):
 
 def DieExpr(expr):
   return eval_expr(expr)
-  
+
 class MultiDensity(Density):
   def __init__(self, *dList):
     self.densityList = dList
