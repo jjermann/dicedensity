@@ -136,6 +136,9 @@ def get_simple_plot(p, inputs = range(-20, 20 + 1), plotWidth = 50, minP = None,
     formatString.format(round(p(k), 4)),\
     inputs)))
 
+def gaussMap(mu=0.0, stdev=1.0):
+  return lambda x: 1.0/math.sqrt(2*math.pi*stdev**2)*math.exp(-(x-mu)**2/(2*stdev**2))
+
 class Density:
   def __init__(self, densities):
     self._cdfList = None
@@ -304,6 +307,9 @@ class Density:
       else:
         elPrev = sortedKeys[elIndex-1]
         return (el + elPrev)/2.0
+
+  def normalApproximation(self, x):
+    return gaussMap(self.expected(), self.stdev())(x)
 
   def plot(self, width=70):
     maxPerc = max(self.values())
