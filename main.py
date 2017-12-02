@@ -121,7 +121,7 @@ winProbability = lambda bonusAttacker: durationDensity(bonusAttacker) > 0
 expectedDuration = lambda bonusAttacker: durationDensity(bonusAttacker).expected()
 
 #print(get_plot(winProbability, range(-20, 20 + 1), asPercentage = True))
-print(get_plot(expectedDuration, range(-20, 20 + 1), plotWidth=50, minP=0, maxP=30))
+print(get_plot(expectedDuration, range(-20, 20 + 1), plotWidth=50))
 # Just replace "get_plot" with "get_simple_plot" to get only the results
 
 print("\n")

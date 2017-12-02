@@ -105,7 +105,11 @@ def centered_plot_line(p, minP, maxP, plotWidth):
     result += '│'
   return result
 
-def get_plot(p, inputs = range(-20, 20 + 1), plotWidth = 50, minP = 0.0, maxP = 1.0, asPercentage = False, centered = True):
+def get_plot(p, inputs = range(-20, 20 + 1), plotWidth = 50, minP = None, maxP = None, asPercentage = False, centered = True):
+  if minP is None:
+    minP = min(0, min([p(k) for k in inputs]))
+  if maxP is None:
+    maxP = max([p(k) for k in inputs])
   if asPercentage:
     formatString = "{0:>12}\t{1:>12.2%}\t{2}"
   else:
@@ -122,7 +126,7 @@ def get_plot(p, inputs = range(-20, 20 + 1), plotWidth = 50, minP = 0.0, maxP = 
       plotFunction(p(k),minP,maxP,plotWidth)\
     ), inputs)))
 
-def get_simple_plot(p, inputs = range(-20, 20 + 1), plotWidth = 50, minP = 0.0, maxP = 1.0, asPercentage = False, centered = True):
+def get_simple_plot(p, inputs = range(-20, 20 + 1), plotWidth = 50, minP = None, maxP = None, asPercentage = False, centered = True):
   if asPercentage:
     formatString = "{0:.2%}"
   else:
