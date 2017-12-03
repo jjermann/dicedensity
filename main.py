@@ -135,6 +135,16 @@ expectedDuration = lambda bonusAttacker: durationDensity(bonusAttacker).expected
 #
 # Example:
 # print(get_plot(winProbability, range(-20, 20 + 1), plotWidth = 50, minP = 0.0, maxP = 1.0, centered = True, asPercentage = True))
+#
+# For graphical plotting use plot_image(function, inputs, name, xlabel, ylabel),
+# Defaults are: inputs=range(-20, 20 + 1), name="plot", xlabel="Input", ylabel="Output"
+# Densities can also be plotted as follows: d.plotImage(name, xlabel, ylabel),
+# Defaults are: name="plot", xlabel="Result", ylabel="Probability"
+# Graphical plots are saved as separate image (with given name)
+#
+# Examples:
+# plot_image(expectedDuration, name="expectedDuration")
+# durationDensity(10).plotImage()
 
 print(get_plot(winProbability, plotWidth=60))
 #print(get_simple_plot(winProbability))

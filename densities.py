@@ -142,6 +142,8 @@ def plot_image(p, inputs = range(-20, 20 + 1), name = "plot", xlabel = "Input", 
   plt.plot(inputs, [p(k) for k in inputs])
   plt.xlabel(xlabel)
   plt.ylabel(ylabel)
+  plt.title(name)
+  #plt.show()
   plt.savefig(name)
 
 def gaussMap(mu=0.0, stdev=1.0):
