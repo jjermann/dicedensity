@@ -136,10 +136,17 @@ expectedDuration = lambda bonusAttacker: durationDensity(bonusAttacker).expected
 # Example:
 # print(get_plot(winProbability, range(-20, 20 + 1), plotWidth = 50, minP = 0.0, maxP = 1.0, centered = True, asPercentage = True))
 
+print(get_plot(winProbability, plotWidth=60))
+#print(get_simple_plot(winProbability))
+print("\n")
 print(get_plot(expectedDuration))
 print("\n")
-print(durationDensity(0))
+print(durationDensity(10))
 
-# durationDensity(0) *given* the attacker wins:
-#print(durationDensity(0).conditionalDensity(lambda k: k > 0))
+plot_image(winProbability)
+plot_image(expectedDuration, name="expectedDuration")
+durationDensity(10).plotImage("durationDensity10")
+
+# durationDensity(10) *given* the attacker wins:
+#print(durationDensity(10).conditionalDensity(lambda k: k > 0))
 

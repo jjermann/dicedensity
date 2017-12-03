@@ -3,6 +3,7 @@ import operator as op
 import re
 import math
 import heapq
+import matplotlib.pyplot as plt
 from itertools import product
 from functools import reduce
 from statistics import median
@@ -136,8 +137,15 @@ def get_simple_plot(p, inputs = range(-20, 20 + 1), plotWidth = 50, minP = None,
     formatString.format(round(p(k), 4)),\
     inputs)))
 
+def plot_image(p, inputs = range(-20, 20 + 1), name = "plot", xlabel = "Input", ylabel = "Output"):
+  fig = plt.figure()
+  plt.plot(inputs, [p(k) for k in inputs])
+  plt.xlabel(xlabel)
+  plt.ylabel(ylabel)
+  plt.savefig(name)
+
 def gaussMap(mu=0.0, stdev=1.0):
-  return lambda x: 1.0/math.sqrt(2*math.pi*stdev**2)*math.exp(-(x-mu)**2/(2*stdev**2))
+  return lambda x: 1.0/math.sqrt(2*math.pi*stdev**2)*math.exp(-(x-mu)**2/(2.0*stdev**2))
 
 class Density:
   def __init__(self, densities):
@@ -311,9 +319,12 @@ class Density:
   def normalApproximation(self, x):
     return gaussMap(self.expected(), self.stdev())(x)
 
-  def plot(self, width=70):
+  def plot(self, plotWidth=70):
     maxPerc = max(self.values())
-    return get_plot(lambda k: self.densities[k], sorted(self.keys()), plotWidth=width, minP=0.0, maxP=maxPerc, asPercentage=True)
+    return get_plot(lambda k: self.densities[k], self.keys(), plotWidth=plotWidth, minP=0.0, maxP=maxPerc, asPercentage=True)
+
+  def plotImage(self, name="plot"):
+    plot_image(lambda k: self.densities[k], self.keys(), name = name, xlabel = "Result", ylabel = "Probability")
 
   def with_advantage(self):
     return self.binOp(self, lambda a,b: max(a,b))
