@@ -137,14 +137,14 @@ def get_simple_plot(p, inputs = range(-20, 20 + 1), plotWidth = 50, minP = None,
     formatString.format(round(p(k), 4)),\
     inputs)))
 
-def plot_image(p, inputs = range(-20, 20 + 1), name = "plot", xlabel = "Input", ylabel = "Output"):
+def plot_image(p, inputs = range(-20, 20 + 1), name = "plot", xlabel = "Input", ylabel = "Output", fmt='-', **kwargs):
   fig = plt.figure()
-  plt.plot(inputs, [p(k) for k in inputs])
+  plt.title(name)
   plt.xlabel(xlabel)
   plt.ylabel(ylabel)
-  plt.title(name)
-  #plt.show()
+  plt.plot(inputs, [p(k) for k in inputs], fmt, **kwargs)
   plt.savefig(name)
+  plt.close(fig)
 
 def gaussMap(mu=0.0, stdev=1.0):
   return lambda x: 1.0/math.sqrt(2*math.pi*stdev**2)*math.exp(-(x-mu)**2/(2.0*stdev**2))
@@ -325,8 +325,8 @@ class Density:
     maxPerc = max(self.values())
     return get_plot(lambda k: self.densities[k], self.keys(), plotWidth=plotWidth, minP=0.0, maxP=maxPerc, asPercentage=True)
 
-  def plotImage(self, name="plot"):
-    plot_image(lambda k: self.densities[k], self.keys(), name = name, xlabel = "Result", ylabel = "Probability")
+  def plotImage(self, name="plot", fmt='-', **kwargs):
+    plot_image(lambda k: self.densities[k], self.keys(), name = name, xlabel = "Result", ylabel = "Probability", fmt='-', **kwargs)
 
   def with_advantage(self):
     return self.binOp(self, lambda a,b: max(a,b))

@@ -136,15 +136,28 @@ expectedDuration = lambda bonusAttacker: durationDensity(bonusAttacker).expected
 # Example:
 # print(get_plot(winProbability, range(-20, 20 + 1), plotWidth = 50, minP = 0.0, maxP = 1.0, centered = True, asPercentage = True))
 #
-# For graphical plotting use plot_image(function, inputs, name, xlabel, ylabel),
-# Defaults are: inputs=range(-20, 20 + 1), name="plot", xlabel="Input", ylabel="Output"
-# Densities can also be plotted as follows: d.plotImage(name, xlabel, ylabel),
-# Defaults are: name="plot", xlabel="Result", ylabel="Probability"
+# For graphical plotting use plot_image(function, inputs, name, xlabel, ylabel, fmt, **kwargs),
+# Defaults are: inputs=range(-20, 20 + 1), name="plot", xlabel="Input", ylabel="Output", fmt='-'
+# Densities can also be plotted as follows: d.plotImage(name, xlabel, ylabel, fmt, **kwargs),
+# Defaults are: name="plot", xlabel="Result", ylabel="Probability", fmt='-' (solid line)
 # Graphical plots are saved as separate image (with given name)
+# In both cases additional plotting options can be given. For possible plotting formats and other options see:
+# https://matplotlib.org/api/_as_gen/matplotlib.pyplot.plot.html#matplotlib.pyplot.plot
 #
 # Examples:
-# plot_image(expectedDuration, name="expectedDuration")
-# durationDensity(10).plotImage()
+# plot_image(expectedDuration, name="expectedDuration", )
+# durationDensity(10).plotImage(fmt='--')
+#
+# For more complex plotting, pyplot should be used directly, example:
+#fig = plt.figure()
+#plt.title("Duration density given attacker wins")
+#plt.xlabel("Duration")
+#plt.ylabel("Probability")
+#for bonusAttacker in range(-10,10+1):
+#  d = durationDensity(bonusAttacker).conditionalDensity(lambda k: k>0)
+#  plt.plot(d.keys(), d.values(), '-')
+#plt.savefig("durationDensityAttackerWins")
+#plt.close(fig)
 
 print(get_plot(winProbability, plotWidth=60))
 #print(get_simple_plot(winProbability))
