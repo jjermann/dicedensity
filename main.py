@@ -147,6 +147,7 @@ expectedDuration = lambda bonusAttacker: durationDensity(bonusAttacker).expected
 # Examples:
 # plot_image(expectedDuration, name="expectedDuration", )
 # durationDensity(10).plotImage(fmt='--')
+# (d20+d20+d20).plotImage("3d20")
 #
 # For more complex plotting, pyplot should be used directly, example:
 #fig = plt.figure()
@@ -157,6 +158,18 @@ expectedDuration = lambda bonusAttacker: durationDensity(bonusAttacker).expected
 #  d = durationDensity(bonusAttacker).conditionalDensity(lambda k: k>0)
 #  plt.plot(d.keys(), d.values(), '-')
 #plt.savefig("durationDensityAttackerWins")
+#plt.close(fig)
+#
+# Here is another example that plots d20+d20+d20 and it's normal approximation
+#fig = plt.figure()
+#plt.title("3d20 and normal approximation")
+#plt.xlabel("Roll / Input")
+#plt.ylabel("Probability")
+#m3d20 = d20 + d20 + d20
+#plt.plot(m3d20.keys(), m3d20.values(), '-r')
+#normalApproximation = m3d20.normalApproximation
+#plt.plot(m3d20.keys(), [normalApproximation(k) for k in m3d20.keys()], '-b')
+#plt.savefig("3d20vsNormal")
 #plt.close(fig)
 
 print(get_plot(winProbability, plotWidth=60))
