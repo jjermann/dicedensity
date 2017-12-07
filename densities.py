@@ -263,6 +263,9 @@ class Density:
   def __ge__(self, y):
     return self.prob(y, lambda a,b: a >= b)
 
+  def __getitem__(self, key):
+    return self.densities[key]
+
   def conditionalDensity(self, cond):
     densities = {}
     for key in self.keys():

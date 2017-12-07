@@ -179,9 +179,9 @@ print(get_plot(expectedDuration))
 print("\n")
 print(durationDensity(10))
 
-plot_image(winProbability)
-plot_image(expectedDuration, name="expectedDuration")
-durationDensity(10).plotImage("durationDensity10")
+#plot_image(winProbability)
+#plot_image(expectedDuration, name="expectedDuration")
+#durationDensity(10).plotImage("durationDensity10")
 
 # durationDensity(10) *given* the attacker wins:
 #print(durationDensity(10).conditionalDensity(lambda k: k > 0))
