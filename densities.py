@@ -143,7 +143,13 @@ def plot_image(p, inputs = range(-20, 20 + 1), name = "plot", xlabel = "Input", 
   plt.title(name)
   plt.xlabel(xlabel)
   plt.ylabel(ylabel)
-  plt.plot(inputs, [p(k) for k in inputs], fmt, **kwargs)
+
+  outputs = [p(k) for k in inputs]
+  plt.xlim([min(inputs), max(inputs)])
+  plt.plot(inputs, outputs, fmt, **kwargs)
+  plt.scatter(inputs, outputs)
+  plt.grid(True)
+
   plt.savefig(name)
   plt.close(fig)
 
