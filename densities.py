@@ -4,6 +4,7 @@ import re
 import math
 import heapq
 import matplotlib.pyplot as plt
+import random
 from itertools import product
 from functools import reduce
 from statistics import median
@@ -327,6 +328,15 @@ class Density:
 
   def plotImage(self, name="plot", fmt='-', **kwargs):
     plot_image(lambda k: self.densities[k], self.keys(), name = name, xlabel = "Result", ylabel = "Probability", fmt='-', **kwargs)
+
+  def roll(self):
+    r = random.random()
+    last = 0.0;
+    for k in self.keys():
+      last += self.densities[k]
+      if r < last:
+        return k
+    return self.keys()[-1]
 
   def with_advantage(self):
     return self.binOp(self, lambda a,b: max(a,b))
