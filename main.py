@@ -115,10 +115,17 @@ def spellDuration(bonusAttacker, bonusDefender):
 # Win probability of attacker (cases where spellDuration > 0.0), parametrized by bonusAttacker
 attackerDie = d20.asMultiDensity(2).drop_lowest(1)
 defenderDie = d20
-durationDensity = lambda bonusAttacker: MultiDensity(attackerDie, defenderDie).multiOp(spellDuration(bonusAttacker, 0))
-winProbability = lambda bonusAttacker: durationDensity(bonusAttacker) > 0
+
+def durationDensity(bonusAttacker):
+  return MultiDensity(attackerDie, defenderDie).multiOp(spellDuration(bonusAttacker, 0))
+
+def winProbability(bonusAttacker):
+  return durationDensity(bonusAttacker) > 0
+
 #winProbability = lambda bonusAttacker: MultiDensity(attackerDie, defenderDie).multiOp(successCondition(bonusAttacker, 0)) > 0
-expectedDuration = lambda bonusAttacker: durationDensity(bonusAttacker).expected()
+
+def expectedDuration(bonusAttacker):
+  return durationDensity(bonusAttacker).expected()
 
 # Plotting
 # -----------------------------
@@ -137,7 +144,7 @@ expectedDuration = lambda bonusAttacker: durationDensity(bonusAttacker).expected
 # print(get_plot(winProbability, range(-20, 20 + 1), plotWidth = 50, minP = 0.0, maxP = 1.0, centered = True, asPercentage = True))
 #
 # For graphical plotting use plot_image(function, inputs, name, xlabel, ylabel, fmt, **kwargs),
-# Defaults are: inputs=range(-20, 20 + 1), name="plot", xlabel="Input", ylabel="Output", fmt='-'
+# Defaults are: inputs=range(-20, 20 + 1), name=<name of function or "plot">, xlabel="Input", ylabel="Output", fmt='-'
 # Densities can also be plotted as follows: d.plotImage(name, xlabel, ylabel, fmt, **kwargs),
 # Defaults are: name="plot", xlabel="Result", ylabel="Probability", fmt='-' (solid line)
 # Graphical plots are saved as separate image (with given name)
@@ -179,9 +186,9 @@ print(get_plot(expectedDuration))
 print("\n")
 print(durationDensity(10))
 
-#plot_image(winProbability)
-#plot_image(expectedDuration, name="expectedDuration")
-#durationDensity(10).plotImage("durationDensity10")
+plot_image(winProbability)
+plot_image(expectedDuration)
+durationDensity(10).plotImage("durationDensity10")
 
 # durationDensity(10) *given* the attacker wins:
 #print(durationDensity(10).conditionalDensity(lambda k: k > 0))

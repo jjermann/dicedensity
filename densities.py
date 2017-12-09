@@ -138,7 +138,13 @@ def get_simple_plot(p, inputs = range(-20, 20 + 1), plotWidth = 50, minP = None,
     formatString.format(round(p(k), 4)),\
     inputs)))
 
-def plot_image(p, inputs = range(-20, 20 + 1), name = "plot", xlabel = "Input", ylabel = "Output", fmt='-', **kwargs):
+def plot_image(p, inputs = range(-20, 20 + 1), name = None, xlabel = "Input", ylabel = "Output", fmt='-', **kwargs):
+  if name is None:
+    if p.__name__ == '<lambda>':
+      name = "plot"
+    else:
+      name = p.__name__
+
   fig = plt.figure()
   plt.title(name)
   plt.xlabel(xlabel)
