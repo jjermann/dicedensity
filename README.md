@@ -153,15 +153,19 @@ The following methods are defined on a given density `d`:
 
 * **`d.arithMult(n)`**  
 Gives the density `d + ... + d` (n times)
+
 * **`-d`**  
 Gives the density `d` with outcomes of opposite sign
+
 * **`abs(d)`**  
 Gives the density `d` with outcomes replaced by their absolute value
+
 * **`d.conditionalDensity(condition)`**  
 Gives the density `d` but only with outcomes that satisfy the given `condition`.
 Note that this increases the probability of the remaining outcomes.
 
   For example `d20.conditionalDensity(lambda a: a<=6)` is the same as `d6`.
+
 * **`d.with_advantage()`**  
 Returns the density `d` corresponding to taking an outcome from `d` twice
 and dropping the lower outcome.
@@ -173,9 +177,11 @@ E.g. `(d20 + d6 + d4).with_advantage()` does *not* correspond to rolling a
 and adding all three twice and then dropping the lower result of that,
 giving a density with outcomes ranging from 3 to 30.
 See the section regarding MultiDensity in case you want to define operations on multiple densities.
+
 * **`d.with_disadvantage()`**  
 Returns the density `d` corresponding to taking an outcome from `d` twice
 and dropping the higher outcome.
+
 * **`d.summedDensity(n)`**  
 Let's say we add `d` arbitrary often to itself and then we check how many
 times (`k`) we had to do the addition to reach at least `n`.
@@ -195,6 +201,7 @@ Here is an example on how to plot the expected number of food portion in terms o
     get_plot(expectedFood, range(0, 100+1))
     plot_image(expectedFood, range(0, 100+1))
   ```
+
 * **`d.roll()`**  
 Returns a randomly selected outcome of the density (according to the distribution).
 Again the density does not keep track of how it was created only one final result will be returned.
@@ -204,37 +211,51 @@ Again the density does not keep track of how it was created only one final resul
     print((d10+d6).roll())
     print((d10+d6).roll())
   ```
+
 * **`d.asMultiDensity(n)`**  
 Returns a `MultiDensity` involving `n` copies of the given density
 (i.e. `MultiDensity(d, ..., d)` where `d` occurs `n` times).
 See the section on `MultiDensity` for further information...
+
 * **`d.plot()`**  
 Returns a text representation of the density `d`. This is implicitely called when doing `print(d)`.
+
 * **`d.plotImage(name="plot")`**  
 Stores an image representation of the density in a file (default name: "plot.png").
 See the section regarding plotting for more information...
+
 * **`d[n]`**  
 Returns the probability for the outcome `n`
+
 * **`d.keys()`, `d.values()`**  
 Returns the (sorted) possible outcomes resp. the corresponding probabilities
+
 * **`d.isValid()`**  
 Returns if `d` is a valid density (i.e. that the probabilities of all outcomes really add up to 1.0).
+
 * **`d.expected()`**  
 Returns the expected value of the density
+
 * **`d.variation()`**  
 Returns the variation of the density
+
 * **`d.stdev()`**  
 Returns the standard deviation of the density
+
 * **`d.cdf`**  
 Is the cummulative distribution function of the density.
 I.e. `d.cdf(n)` gives the probability that `d<=n`.
+
 * **`d.inverseCdf`**  
 Is the inverse cummulative distribution function of the density.
 I.e. `d.inverseCdf(p)` returns the smallest outcome `n` such that `d.cdf(n)>=p`.
+
 * **`d.median()`**  
 Returns the median of the density
+
 * **`d.normalApproximation`**  
 Is the (continious) gauss map with the same standard deviation and expected value as the given density
+
 * **More general unary operations**  
 An arbitrary unary operation on the given density can be defined using the method `d.op(operation)`
 where `operation` is a function in one variable `operation(outcome)`
@@ -262,6 +283,7 @@ The following returns the probability that (d6+d10) is smaller or equal to d8
 As already described in the sections "Integers and floats" one can also be
 used in the condition which are then treated as constant densities.
 For example `d10 > 7` gives the probability that a d10 roll is larger than 7.
+
 * More general conditions for calculating probabilities
 The probability of an arbitrary condition on the density can be calculated
 using the method `d.prob(condition)` where condition(outcome) is predicate
@@ -300,6 +322,7 @@ densities and then dropping the highest `n` rolls of those (default: `n=1`).
     print(multiDensity.drop_highest(2))
     print(multiDensity.drop_lowest())
   ```
+
 * **`d.drop_lowest(n=1)`**  
 Returns a (regular) density corresponding to rolling all defined individual
 densities and then dropping the lowest `n` rolls of those (default: `n=1`).
@@ -309,6 +332,7 @@ Note that `MultiDensity(d2,d6).drop_lowest()` is not the same as `MultiDensity(d
 The first case corresponds to rolling a `d2` and a `d6` and then dropping the lower result of the two.
 The second case corresponds to rolling `d2+d6` twice and then dropping the lower result of the two.
 In the first case the outcomes range from 1 to 6, in the second case the outcomes range from 2 to 8.
+
 * **More general multi density operations**  
 More general multi density operations can be defined using the method
 `multiDensity.multiOp(operation)` where `operation` is a function in as many
@@ -429,6 +453,7 @@ use ``get_simple_plot`` in place of ``get_plot``.
     print(get_simple_plot(expectedWinAmount))
     print(get_plot(expectedWinAmount, range(-20, 20 + 1), plotWidth = 50, minP = 0.0, maxP = 1.0, centered = True, asPercentage = True))
   ```
+
 * **Image plotting**  
 For image plotting the following function can be used:
 
@@ -447,6 +472,7 @@ or in general more complex plotting see:
   ```python3
     plot_image(expectedWinAmount)
   ```
+
 * **Text plotting of densities**  
 For densities the method `plot(plotWidth=70)` can be used which internally calls `get_plot`.
 Or even more simply `print(density)` can be used...
@@ -456,6 +482,7 @@ Or even more simply `print(density)` can be used...
     (d20+d20+d20).plot(90)
     print(d20+d20+d20)
   ```
+
 * **Image plotting of densities**  
 For densities the method `plotImage(name="plot")` can be used which internally calls `plot_image`.
 
@@ -463,6 +490,7 @@ For densities the method `plotImage(name="plot")` can be used which internally c
   ```python3
     (d20+d20+d20).plotImage("3d20")
   ```
+
 * **More advanced plotting**  
 For more complex plotting, pyplot should be used directly, example:
   ```python3
