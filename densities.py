@@ -453,3 +453,33 @@ class MultiDensity(Density):
       return self.multiOp(lambda *a: sum(a)-min(a))
     else:
       return self.multiOp(lambda *a: sum(a)-sum(heapq.nsmallest(n,a)))
+
+  def keep_highest(self, n=1):
+    if n == 1:
+      return self.multiOp(lambda *a: max(a))
+    else:
+      return self.multiOp(lambda *a: sum(heapq.nlargest(n,a)))
+
+  def keep_lowest(self, n=1):
+    if n == 1:
+      return self.multiOp(lambda *a: min(a))
+    else:
+      return self.multiOp(lambda *a: sum(heapq.nsmallest(n,a)))
+
+  def combine(self, *pList):
+    if len(pList) != len(self.densityList):
+      raise ValueError("The number of probabilities does not match the number of internal densities!") 
+    if abs(1.0 - sum(pList)) >= 1e-09:
+      raise ValueError("The list of probabilities must add up to 1.0!") 
+    resDensity = {}
+    for i in range(0, len(self.densityList)):
+      density = self.densityList[i]
+      for resKey in density.keys():
+        if resKey not in resDensity:
+          resDensity[resKey] = 0.0
+        resDensity[resKey] += density[resKey] * pList[i]
+    return Density(resDensity)
+
+  def keepRandom(self):
+    n = len(self.densityList)
+    return self.combine(*list([1.0/n]*n))

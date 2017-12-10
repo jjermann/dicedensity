@@ -329,6 +329,13 @@ the given densities (in this example `d20 + d20 + d20`) and all operations
 and methods of regular densities can be done on `MultiDensity` (they don't
 take into account the individual densities though, just the final sum).
 
+  :warning:  
+Note that `MultiDensity(d2,d6).drop_lowest()` (and similarly for the other methods)
+is not the same as `MultiDensity(d2,d6).with_advantage()`.
+The first case corresponds to rolling a `d2` and a `d6` and then dropping the lower result of the two.
+The second case corresponds to rolling `d2+d6` twice and then dropping the lower result of the two.
+In the first case the outcomes range from 1 to 6, in the second case the outcomes range from 2 to 8.
+
 In addition the following (multi density) methods can be used:
 
 * **`d.drop_highest(n=1)`**  
@@ -339,18 +346,57 @@ densities and then dropping the highest `n` rolls of those (default: `n=1`).
   ```python3
     multiDensity = MultiDensity(d2, d6, d20)
     print(multiDensity.drop_highest(2))
-    print(multiDensity.drop_lowest())
   ```
 
 * **`d.drop_lowest(n=1)`**  
 Returns a (regular) density corresponding to rolling all defined individual
 densities and then dropping the lowest `n` rolls of those (default: `n=1`).
 
-  :warning:  
-Note that `MultiDensity(d2,d6).drop_lowest()` is not the same as `MultiDensity(d2,d6).with_advantage()`.
-The first case corresponds to rolling a `d2` and a `d6` and then dropping the lower result of the two.
-The second case corresponds to rolling `d2+d6` twice and then dropping the lower result of the two.
-In the first case the outcomes range from 1 to 6, in the second case the outcomes range from 2 to 8.
+  Example:
+  ```python3
+    multiDensity = MultiDensity(d2, d6, d20)
+    print(multiDensity.drop_lowest())
+  ```
+
+* **`d.keep_highest(n=1)`**  
+Returns a (regular) density corresponding to rolling all defined individual
+densities but only keeping the highest `n` rolls of those (default: `n=1`).
+
+  Example:
+  ```python3
+    multiDensity = MultiDensity(d2, d6, d20)
+    print(multiDensity.keep_highest())
+  ```
+
+* **`d.keep_lowest(n=1)`**  
+Returns a (regular) density corresponding to rolling all defined individual
+densities but only keeping the lowest `n` rolls of those (default: `n=1`).
+
+  Example:
+  ```python3
+    multiDensity = MultiDensity(d2, d6, d20)
+    print(multiDensity.keep_lowest(2))
+  ```
+
+* **`d.combine(p1, ..., pn)`**  
+Returns a (regular) density corresponding to rolling all defined individual
+densities and picking one of them according to the probabilities specified.
+
+  Example:
+  ```python3
+    multiDensity = MultiDensity(d2, d6, d20)
+    print(multiDensity.combine(1.0/3, 2.0/6, 2.0/6))
+  ```
+
+* **`d.keepRandom()`**  
+Returns a (regular) density corresponding to rolling all defined individual
+densities and picking one of them at random. I.e. `d.combine(1.0/n, ..., 1.0/n)`.
+
+  Example:
+  ```python3
+    multiDensity = MultiDensity(d2, d6, d20)
+    print(multiDensity.keepRandom())
+  ```
 
 * **More general multi density operations**  
 More general multi density operations can be defined using the method
@@ -367,6 +413,7 @@ Operations on many densities get slow quite fast.
   ```python3
     MultiDensity(d3, d6, d20).multiOp(lambda a,b,c: max(a,b,c)-min(a,b,c))
   ```
+
 * **More examples**  
 Sometimes one is interested in comparing two rolls in a complicated fashion.
 Let's say we compare two rolls and the following function determines the
