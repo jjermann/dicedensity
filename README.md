@@ -511,16 +511,16 @@ For densities the method `plotImage(name="plot")` can be used which internally c
 For more complex plotting, pyplot should be used directly, example:
   ```python3
     fig = plt.figure()
-    plt.title("Duration density given attacker wins")
-    plt.xlabel("Duration")
+    plt.title("Win amount given attacker wins")
+    plt.xlabel("Amount")
     plt.ylabel("Probability")
     for bonusAttacker in range(-10,10+1):
       d = expectedWinAmount(bonusAttacker).conditionalDensity(lambda k: k>0)
       plt.plot(d.keys(), d.values(), '-')
-    plt.savefig("expectedWinAmountAttackerWins")
+    plt.savefig("winAmountAttackerWins")
     plt.close(fig)
   ```
-  ![Image plot](images/expectedWinAmountAttackerWins.png)
+  ![Image plot](images/winAmountAttackerWins.png)
 
   Here is another example that plots `d20+d20+d20` and it's normal approximation:
   ```python3
