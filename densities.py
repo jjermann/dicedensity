@@ -210,8 +210,20 @@ class Density:
         for i in range(other-1):
           res += self
         return res
+    if isinstance(other, Density):
+      for k in other.keys():
+        if not (isinstance(k, (int)) and k >= 0):
+          raise ValueError("Only nonnegative integer densities may be used!")
+      resDensity = {}
+      for k in other.keys():
+        res = self.arithMult(k)
+        for resKey in res.keys():
+          if resKey not in resDensity:
+            resDensity[resKey] = 0.0
+          resDensity[resKey] += res[resKey] * other[k]
+      return Density(resDensity)
     else:
-      raise ValueError("other must be a nonnegative int!")
+      raise ValueError("Other must be a nonnegative int or a nonnegative integer density!")
 
   def asMultiDensity(self, n):
     densityList = [self] * n

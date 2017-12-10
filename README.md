@@ -115,20 +115,23 @@ To simplify expressions it is recommended to define abbreviations for commonly u
 ### Binary operations between densities
 * **Addition and Subtraction**  
 `D1 + D2` is the density corresponding to adding the two corresponding random variables.
+For example `d20+d20` is the density of two added `d20` rolls with possible outcomes ranging from 2 to 40.
 
   Example:
   ```python3
     print(d6 + d4)
     print(d6 - d10)
   ```
+
 * **Multiplication**  
 `D1 * D2` is the density corresponding to multiplying the two corresponding random variables.
-For example `d20+d20` is the density of two added d20 rolls with possible outcomes ranging from 2 to 40.
+For example `d2*d20` is the density corresponding to rolling a `d2` and `d20` and then multiplying the two results.
 
   Example:
   ```python3
     print(d3*d6)
   ```
+
 * **Integers and floats**  
 In place of a density one can also use regular integers and/or floats in operations.
 In this case the integer/float is considered a `Constant` density.
@@ -148,6 +151,7 @@ density corresponding to rolling a d20 and adding 10 with outcomes ranging from 
     print(d6 + d6 + d6)
     print(d6.arithMult(3))
   ```
+
 * **More general binary operations**  
 An arbitrary binary operations between two densities can be defined using the method `D1.binOp(D2, operation)` where `operation` is a function in two variables `operation(outcome1, outcome2)`
 that defines the final outcome in case the outcome of `D1` is `outcome1` and the outcome of `D2` is `outcome2`.
@@ -159,7 +163,15 @@ that defines the final outcome in case the outcome of `D1` is `outcome1` and the
 The following methods are defined on a given density `d`:
 
 * **`d.arithMult(n)`**  
-Gives the density `d + ... + d` (n times)
+Gives the density `d + ... + d` (`n` times) in case `n` is a nonnegative integer.
+It is also possible use a density `secondDensity` with nonnegative integer outcomes as an argument.
+In this case the resulting density corresponds to first rolling `secondDensity` and then rolling that many `d`.
+
+  Example:
+  ```python3
+    print(d20.arithMult(3))
+    print(d20.arithMult(d4))
+  ```
 
 * **`-d`**  
 Gives the density `d` with outcomes of opposite sign
