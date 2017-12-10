@@ -81,3 +81,40 @@ durationDensity(10).plotImage("durationDensity10")
 # durationDensity(10) *given* the attacker wins:
 #print(durationDensity(10).conditionalDensity(lambda k: k > 0))
 
+
+# Attacker vs. defender (fight)
+# -----------------------------
+
+def attackDamageDensity(damageAttacker, damageBonusAttacker, damageResistanceDefender, hitBonusAttacker, evadeDefender, armorDefender):
+  def finalDamageDensity(attackRoll):
+    if (attackRoll + hitBonusAttacker) < evadeDefender:
+      return Zero()
+
+    if (attackRoll + hitBonusAttacker) < evadeDefender + armorDefender:
+      armorHitDamage = damageAttacker.op(lambda a: max(0, a + damageBonusAttacker - damageResistanceDefender))
+      return armorHitDamage
+
+    criticalHits = math.floor(((attackRoll + hitBonusAttacker) - (evadeDefender + armorDefender)) / 5)
+    criticalHitDamage = damageAttacker.arithMult(1 + criticalHits) + damageBonusAttacker
+    return criticalHitDamage
+
+  return finalDamageDensity
+
+
+attackerDie              = d20
+hitBonusAttacker         = 3
+damageAttacker           = d8
+damageBonusAttacker      = 2
+damageResistanceDefender = 4
+evadeDefender            = 10
+armorDefender            = 6
+
+dmgFunction = attackDamageDensity(damageAttacker, damageBonusAttacker, damageResistanceDefender, hitBonusAttacker, evadeDefender, armorDefender)
+def expectedDamage(attackRoll):
+  return dmgFunction(attackRoll).expected()
+expectedTotalDamage = sum([attackerDie[k]*expectedDamage(k) for k in attackerDie.keys()])
+
+print()
+print("Expected total damage: {}".format(expectedTotalDamage))
+print(get_plot(expectedDamage, attackerDie.keys()))
+plot_image(expectedDamage, inputs=attackerDie.keys(), name="ExpectedDamage", xlabel="Attack roll (Total expected damage: {})".format(expectedTotalDamage), ylabel="Expected damage")
