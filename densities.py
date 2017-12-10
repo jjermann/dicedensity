@@ -417,6 +417,10 @@ class Zero(Constant):
   def __init__(self):
     Constant.__init__(self, 0)
 
+class One(Constant):
+  def __init__(self):
+    Constant.__init__(self, 1)
+
 def AdvantageDie(die):
   return Die(die).with_advantage()
 

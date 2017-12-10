@@ -27,6 +27,7 @@ Main content
       * `Die`
       * `Constant`
       * `Zero`
+      * `One`
       * `MultiDensity`
   * Defines the following functions:  
       * `get_plot`
@@ -88,6 +89,8 @@ A die with n sides, i.e. n possible outcomes all with probability 1/n
 A constant density, i.e. 1 possibly outcome (`n`) with probability 1
 * **`Zero`**  
 The constant density for `n=0`
+* **`One`**  
+The constant density for `n=1`
 * **`AdvantageDie(n)`**  
 The density corresponding to rolling two `Die(n)` and taking the larger result.
 * **`DisadvantageDie(n)`**  
@@ -115,6 +118,7 @@ To simplify expressions it is recommended to define abbreviations for commonly u
 ### Binary operations between densities
 * **Addition and Subtraction**  
 `D1 + D2` is the density corresponding to adding the two corresponding random variables.
+Mathematically speaking the addition of densities forms a commutative monoid with identity `Zero`.
 For example `d20+d20` is the density of two added `d20` rolls with possible outcomes ranging from 2 to 40.
 
   Example:
@@ -125,6 +129,7 @@ For example `d20+d20` is the density of two added `d20` rolls with possible outc
 
 * **Multiplication**  
 `D1 * D2` is the density corresponding to multiplying the two corresponding random variables.
+Mathematically speaking the multiplication of densities forms a commutative monoid with identity `One`.
 For example `d2*d20` is the density corresponding to rolling a `d2` and `d20` and then multiplying the two results.
 
   Example:
@@ -135,6 +140,7 @@ For example `d2*d20` is the density corresponding to rolling a `d2` and `d20` an
 * **Integers and floats**  
 In place of a density one can also use regular integers and/or floats in operations.
 In this case the integer/float is considered a `Constant` density.
+Mathematically speaking multiplication by integers is distributive with respect to addition.
 For instance `d20 + 10` is the same as `d20 + Constant(10)`, i.e. the
 density corresponding to rolling a d20 and adding 10 with outcomes ranging from 11 to 30 (with probabilities 1/20).
 
@@ -164,8 +170,10 @@ The following methods are defined on a given density `d`:
 
 * **`d.arithMult(n)`**  
 Gives the density `d + ... + d` (`n` times) in case `n` is a nonnegative integer.
+Mathematically speaking arithmetical multiplication by integers is distributive with respect to addition of densities.
 It is also possible use a density `secondDensity` with nonnegative integer outcomes as an argument.
 In this case the resulting density corresponds to first rolling `secondDensity` and then rolling that many `d`.
+In this case the arithmetical multiplication is no longer distributive.
 
   Example:
   ```python3
