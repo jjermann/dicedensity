@@ -58,15 +58,18 @@ def getDensity(arg):
 def plot_line(p, minP, maxP, plotWidth):
   aboveMax = p - maxP > 1e-9
   belowMin = minP - p > 1e-9
+  correctedZero = 0
+  correctedZero = max(correctedZero, minP)
+  correctedZero = min(correctedZero, maxP)
 
   p = max(p, minP)
   p = min(p, maxP)
-  filledWidth = int(round(1.0*(p-minP)*plotWidth/(maxP-minP)))
-  zeroPosition = int(round(1.0*(-minP)*plotWidth/(maxP-minP)))
+  correctedZeroPosition = int(round(1.0*(correctedZero-minP)*plotWidth/(maxP-minP)))
+  pPosition = int(round(1.0*(p-minP)*plotWidth/(maxP-minP)))
 
-  mainContent = filledWidth*'█' + (plotWidth-filledWidth)*' '
-  if zeroPosition > 0 and zeroPosition < plotWidth:
-    mainContent = mainContent[:zeroPosition] + '│' + mainContent[zeroPosition + 1:]
+  mainContent = pPosition*'█' + (plotWidth-pPosition)*' '
+  if correctedZeroPosition > 0 and correctedZeroPosition < plotWidth:
+    mainContent = mainContent[:correctedZeroPosition] + '│' + mainContent[correctedZeroPosition + 1:]
 
   if belowMin:
     result = '│'
@@ -82,27 +85,32 @@ def plot_line(p, minP, maxP, plotWidth):
 def centered_plot_line(p, minP, maxP, plotWidth):
   aboveMax = p - maxP > 1e-9
   belowMin = minP - p > 1e-9
+  correctedZero = 0
+  correctedZero = max(correctedZero, minP)
+  correctedZero = min(correctedZero, maxP)
 
   p = max(p, minP)
   p = min(p, maxP)
-  filledWidth = int(round(1.0*abs(p)*plotWidth/(maxP-minP)))
-  zeroPosition = int(round(1.0*(-minP)*plotWidth/(maxP-minP)))
+
+  correctedZeroPosition = int(round(1.0*(correctedZero-minP)*plotWidth/(maxP-minP)))
+  pPosition = int(round(1.0*(p-minP)*plotWidth/(maxP-minP)))
+  relPosition = pPosition-correctedZeroPosition
 
   mainContent = plotWidth*' '
-  if p >= 0:
-    mainContent = mainContent[:zeroPosition] + filledWidth*'█' + mainContent[zeroPosition + filledWidth:]
+  if relPosition >= 0:
+    mainContent = mainContent[:correctedZeroPosition] + relPosition*'█' + mainContent[correctedZeroPosition + relPosition:]
   else:
-    mainContent = mainContent[:zeroPosition - filledWidth] + filledWidth*'█' + mainContent[zeroPosition:]
+    mainContent = mainContent[:correctedZeroPosition + relPosition] + (-relPosition)*'█' + mainContent[correctedZeroPosition:]
 
-  if zeroPosition > 0 and zeroPosition < plotWidth:
-    mainContent = mainContent[:zeroPosition] + '│' + mainContent[zeroPosition + 1:]
+  if correctedZeroPosition > 0 and correctedZeroPosition < plotWidth:
+    mainContent = mainContent[:correctedZeroPosition] + '│' + mainContent[correctedZeroPosition + 1:]
 
-  if belowMin:
+  if belowMin or correctedZero > 0:
     result = '█'
   else:
     result = '│'
   result += mainContent
-  if aboveMax:
+  if aboveMax or correctedZero < 0:
     result += '█'
   else:
     result += '│'
@@ -112,7 +120,7 @@ def get_plot(p, inputs = range(-20, 20 + 1), plotWidth = 50, minP = None, maxP =
   if minP is None:
     minP = min(0, min([p(k) for k in inputs]))
   if maxP is None:
-    maxP = max([p(k) for k in inputs])
+    maxP = max(0, max([p(k) for k in inputs]))
   if asPercentage:
     formatString = "{0:>12}\t{1:>12.2%}\t{2}"
   else:
