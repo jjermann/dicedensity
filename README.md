@@ -53,7 +53,7 @@ These possible outcomes together with their probability are all stored in the de
 For all operations/methods defined below we assume that the corresponding random variables are independent.
 
 The standard string representation of a density (use `print(density)`) lists all outcomes together
-with their probabilites and also gives a (text) plot of the probability mass function.
+with their probabilities and also gives a (text) plot of the probability mass function.
 In addition also the expected value and the standard deviation is displayed.
 
 
@@ -76,7 +76,7 @@ For example the following would directly define a `d20` die roll density:
 ```python3
     densityDict = {}
     for r in range(1, 20):
-      densitDict[r] = 1.0 / 20
+      densityDict[r] = 1.0 / 20
     d20 = Density(densityDict)
 ```
 
@@ -96,7 +96,7 @@ The density corresponding to rolling two `Die(n)` and taking the smaller result.
 Used to define more complex densities built from multiple other densities
 (see below for more details).
 
-To simplify expressions it is recommended to define abreviations for commonly used densities:
+To simplify expressions it is recommended to define abbreviations for commonly used densities:
 
 ```python3
     d2   = Die(2)
@@ -113,7 +113,7 @@ To simplify expressions it is recommended to define abreviations for commonly us
 ```
 
 ### Binary operations between densities
-* **Addition and Substraction**  
+* **Addition and Subtraction**  
 `D1 + D2` is the density corresponding to adding the two corresponding random variables.
 
   Example:
@@ -133,7 +133,7 @@ For example `d20+d20` is the density of two added d20 rolls with possible outcom
 In place of a density one can also use regular integers and/or floats in operations.
 In this case the integer/float is considered a `Constant` density.
 For instance `d20 + 10` is the same as `d20 + Constant(10)`, i.e. the
-density corresponding to rolling a d20 and adding 10 with outcomes ranging from 11 to 30 (with probabilites 1/20).
+density corresponding to rolling a d20 and adding 10 with outcomes ranging from 11 to 30 (with probabilities 1/20).
 
   :warning:  
   This can be particular confusing with multiplication:
@@ -225,7 +225,7 @@ Returns a `MultiDensity` involving `n` copies of the given density
 See the section on `MultiDensity` for further information...
 
 * **`d.plot()`**  
-Returns a text representation of the density `d`. This is implicitely called when doing `print(d)`.
+Returns a text representation of the density `d`. This is implicitly called when doing `print(d)`.
 
 * **`d.plotImage(name="plot")`**  
 Stores an image representation of the density in a file (default name: "plot.png").
@@ -250,18 +250,18 @@ Returns the variation of the density
 Returns the standard deviation of the density
 
 * **`d.cdf`**  
-Is the cummulative distribution function of the density.
+Is the cumulative distribution function of the density.
 I.e. `d.cdf(n)` gives the probability that `d<=n`.
 
 * **`d.inverseCdf`**  
-Is the inverse cummulative distribution function of the density.
+Is the inverse cumulative distribution function of the density.
 I.e. `d.inverseCdf(p)` returns the smallest outcome `n` such that `d.cdf(n)>=p`.
 
 * **`d.median()`**  
 Returns the median of the density
 
 * **`d.normalApproximation`**  
-Is the (continious) gauss map with the same standard deviation and expected value as the given density
+Is the (continuous) Gauss map with the same standard deviation and expected value as the given density
 
 * **More general unary operations**  
 An arbitrary unary operation on the given density can be defined using the method `d.op(operation)`
@@ -273,7 +273,7 @@ that defines the final outcome in case the outcome of `d` is `outcome`.
 
 ### Probability calculations
 For densities the usual comparison and equality operators don't return
-boolean results. Instead they return the probability for the given condition.
+Boolean results. Instead they return the probability for the given condition.
 For example:
 
 * **Comparison and Equality operators**  
@@ -397,7 +397,7 @@ Since in this case only two rolls are involved this could also be written as
 the success probability but also some kind of measure by how much the attacker won.
 Let's say we want to know the expected amount by which the attacker wins,
 parametrized by `bonusAttacker` (always assuming `bonusDefender=0`) in some range.
-We can do this by first parametricing the winAmount condition
+We can do this by first parametrizing the winAmount condition
 (by `bonusAttacker` resp. `bonusDefender`):
 
   ```python3
@@ -424,11 +424,11 @@ We can do this by first parametricing the winAmount condition
   Note that `expectedWinAmount` is not a density, it's just a function but
 there are also some generic plotting methods for functions: `get_plot` for
 text plots and `plot_image` for image plots (see the section on Plotting for
-more informations).
+more information).
 
 
 ### Plotting
-There are some helper plotting functions defined that are beeing used:
+There are some helper plotting functions defined that are being used:
 
 * **Text plotting**  
   ```python3
@@ -451,7 +451,7 @@ There are some helper plotting functions defined that are beeing used:
 or if everything is always drawn from the left up to the value, default: `True` (away from zero)
 
   If the default values are fine a simple `get_plot(function)` can be used.
-If only the second column is disred (e.g. to easily copy the results),
+If only the second column is desired (e.g. to easily copy the results),
 use ``get_simple_plot`` in place of ``get_plot``.
 
   Example (see above for the definition of `expectedWinAmount` or use a different function):
@@ -467,7 +467,7 @@ indicating zero is drawn:
   ```python3
     print(get_plot(lambda k: expectedWinAmount(k) - 4))
   ```
-  ![Negvative plot](images/negativePlot.png)
+  ![Negative plot](images/negativePlot.png)
 
 * **Image plotting**  
 For image plotting the following function can be used:
@@ -478,7 +478,7 @@ For image plotting the following function can be used:
   If `name` is not specified then the function name is used if possible, if
 that's not possible then `plot` is used. The function will save the image
 plot in the file given by the name (as a `.png` file).
-The function uses `matplotlib`. For possible plotting formats, other aditional arguments
+The function uses `matplotlib`. For possible plotting formats, other additional arguments
 or in general more complex plotting see:
 
   https://matplotlib.org/api/_as_gen/matplotlib.pyplot.plot.html#matplotlib.pyplot.plot
