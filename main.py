@@ -85,6 +85,7 @@ durationDensity(10).plotImage("durationDensity10")
 # Attacker vs. defender (fight)
 # -----------------------------
 
+# This function returns a damage density (ranging over the possible damageAttacker rolls) parametrized by the attackRoll (usually d20)
 def attackDamageDensity(damageAttacker, damageBonusAttacker, damageResistanceDefender, hitBonusAttacker, evadeDefender, armorDefender):
   def finalDamageDensity(attackRoll):
     if (attackRoll + hitBonusAttacker) < evadeDefender:
@@ -95,26 +96,54 @@ def attackDamageDensity(damageAttacker, damageBonusAttacker, damageResistanceDef
       return armorHitDamage
 
     criticalHits = math.floor(((attackRoll + hitBonusAttacker) - (evadeDefender + armorDefender)) / 5)
-    criticalHitDamage = damageAttacker.arithMult(1 + criticalHits) + damageBonusAttacker
+    criticalHitDamage = damageAttacker.arithMult(1 + criticalHits).op(lambda a: max(0, a + damageBonusAttacker))
     return criticalHitDamage
 
   return finalDamageDensity
 
 
-attackerDie              = d20
+# All relevant parameters
+attackerDie              = ad20
 hitBonusAttacker         = 3
-damageAttacker           = d8
+damageAttacker           = d8+d4
 damageBonusAttacker      = 2
+damageResistanceAttacker = 2
+evadeAttacker            = 5
+armorAttacker            = 0
+
+defenderDie              = d20
+hitBonusDefender         = 1
+damageDefender           = d8
+damageBonusDefender      = -1
 damageResistanceDefender = 4
 evadeDefender            = 10
 armorDefender            = 6
 
-dmgFunction = attackDamageDensity(damageAttacker, damageBonusAttacker, damageResistanceDefender, hitBonusAttacker, evadeDefender, armorDefender)
-def expectedDamage(attackRoll):
-  return dmgFunction(attackRoll).expected()
-expectedTotalDamage = sum([attackerDie[k]*expectedDamage(k) for k in attackerDie.keys()])
+# Attacker damage density parametrized by damageAttacker rolls
+attackerDmgFunction = attackDamageDensity(damageAttacker, damageBonusAttacker, damageResistanceDefender, hitBonusAttacker, evadeDefender, armorDefender)
+# Expected damage from attacker for a given attackRoll
+def expectedAttackerDamage(attackRoll):
+  return attackerDmgFunction(attackRoll).expected()
+# Expected final damage from attacker (over all possible attackRolls)
+expectedTotalAttackerDamage = sum([attackerDie[k]*expectedAttackerDamage(k) for k in attackerDie.keys()])
 
+# Defender damage density parametrized by damageDefender rolls
+defenderDmgFunction = attackDamageDensity(damageDefender, damageBonusDefender, damageResistanceAttacker, hitBonusDefender, evadeAttacker, armorAttacker)
+# Expected damage from defender for a given attackRoll
+def expectedDefenderDamage(attackRoll):
+  return defenderDmgFunction(attackRoll).expected()
+# Expected final damage from defender (over all possible attackRolls)
+expectedTotalDefenderDamage = sum([defenderDie[k]*expectedDefenderDamage(k) for k in defenderDie.keys()])
+
+# Plots for attacker
 print()
-print("Expected total damage: {}".format(expectedTotalDamage))
-print(get_plot(expectedDamage, attackerDie.keys()))
-plot_image(expectedDamage, inputs=attackerDie.keys(), name="ExpectedDamage", xlabel="Attack roll (Total expected damage: {})".format(expectedTotalDamage), ylabel="Expected damage")
+print("Expected total attacker damage: {}".format(expectedTotalAttackerDamage))
+print(get_plot(expectedAttackerDamage, attackerDie.keys()))
+plot_image(expectedAttackerDamage, inputs=attackerDie.keys(), name="ExpectedAttackerDamage", xlabel="Attack roll (Total expected damage: {})".format(expectedTotalAttackerDamage), ylabel="Expected attacker damage")
+
+# Plots for defender
+print()
+print("Expected total defender damage: {}".format(expectedTotalDefenderDamage))
+print(get_plot(expectedDefenderDamage, defenderDie.keys()))
+plot_image(expectedDefenderDamage, inputs=defenderDie.keys(), name="ExpectedDefenderDamage", xlabel="Attack roll (Total expected damage: {})".format(expectedTotalDefenderDamage), ylabel="Expected defender damage")
+
