@@ -57,6 +57,11 @@ with their probabilites and also gives a (text) plot of the probability mass fun
 In addition also the expected value and the standard deviation is displayed.
 
 
+### Screenshots
+![Text output](images/3d10_text.png)
+![Image output](images/3d10.png)
+
+
 ### Defining densities
 A density can be directly specified by passing it a dictionary of all (key,probability) entries.
 For example the following would directly define a `d20` die roll density:
@@ -427,7 +432,7 @@ For image plotting the following function can be used:
   ```python3
 plot_image(function, inputs=range(-20, 20+1), name=None, xlabel="Input", ylabel="Output", fmt='-', **kwargs)
   ```
-If `name` is not specified then the function name is used if possible, if
+  If `name` is not specified then the function name is used if possible, if
 that's not possible then `plot` is used. The function will save the image
 plot in the file given by the name (as a `.png` file).
 The function uses `matplotlib`. For possible plotting formats, other aditional arguments
