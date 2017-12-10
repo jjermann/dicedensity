@@ -58,7 +58,14 @@ In addition also the expected value and the standard deviation is displayed.
 
 
 ### Screenshots
+```python3
+    print(d10+d10+d10)
+```
 ![Text output](images/3d10_text.png)
+
+```python3
+    (d10+d10+d10).plotImage("3d10")
+```
 ![Image output](images/3d10.png)
 
 
