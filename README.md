@@ -2,7 +2,7 @@
 
 # Discrete densities
 
-A python3 module to work with discrete densities.
+A python3 module to work with discrete (mostly integer valued) densities.
 
 
 ## Dependencies:
