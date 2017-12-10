@@ -460,6 +460,14 @@ use ``get_simple_plot`` in place of ``get_plot``.
     print(get_simple_plot(expectedWinAmount))
     print(get_plot(expectedWinAmount, range(-20, 20 + 1), plotWidth = 50, minP = 0.0, maxP = 1.0, centered = True, asPercentage = True))
   ```
+  ![Text plot](images/expectedWinAmount_text.png)
+
+  Also plotting of negative values is possible. In this case a line
+indicating zero is drawn:
+  ```python3
+    print(get_plot(lambda k: expectedWinAmount(k) - 4))
+  ```
+  ![Negvative plot](images/negativePlot.png)
 
 * **Image plotting**  
 For image plotting the following function can be used:
@@ -479,6 +487,7 @@ or in general more complex plotting see:
   ```python3
     plot_image(expectedWinAmount)
   ```
+  ![Image plot](images/expectedWinAmount.png)
 
 * **Text plotting of densities**  
 For densities the method `plot(plotWidth=70)` can be used which internally calls `get_plot`.
@@ -511,6 +520,7 @@ For more complex plotting, pyplot should be used directly, example:
     plt.savefig("expectedWinAmountAttackerWins")
     plt.close(fig)
   ```
+  ![Image plot](images/expectedWinAmountAttackerWins.png)
 
   Here is another example that plots `d20+d20+d20` and it's normal approximation:
   ```python3
@@ -520,8 +530,9 @@ For more complex plotting, pyplot should be used directly, example:
     plt.ylabel("Probability")
     m3d20 = d20 + d20 + d20
     plt.plot(m3d20.keys(), m3d20.values(), '-r')
-     normalApproximation = m3d20.normalApproximation
+    normalApproximation = m3d20.normalApproximation
     plt.plot(m3d20.keys(), [normalApproximation(k) for k in m3d20.keys()], '-b')
     plt.savefig("3d20vsNormal")
     plt.close(fig)
   ```
+  ![Image plot](images/3d20vsNormal.png)
