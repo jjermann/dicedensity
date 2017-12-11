@@ -5,23 +5,6 @@
 from densities import *
 from combatant import *
 
-ex   = DieExpr("d5+ad15+m2d7+dd2-2")
-ex2  = ex.with_advantage()
-ex3  = ex.with_disadvantage()
-d2   = Die(2)
-d3   = Die(3)
-d4   = Die(4)
-d6   = Die(6)
-d8   = Die(8)
-d10  = Die(10)
-d12  = Die(12)
-d20  = Die(20)
-d100 = Die(100)
-ad20 = AdvantageDie(20)
-aad20 = d20.asMultiDensity(3).drop_lowest(2)
-dd20 = DisadvantageDie(20)
-ddd20 = d20.asMultiDensity(3).drop_highest(2)
-
 
 # Probabilities to find a certain number of rations of food when searching for "turnsToSearch" turns
 # --------------------------------------------------------------------------------------------------
@@ -87,8 +70,6 @@ durationDensity(10).plotImage("durationDensity10")
 # -----------------------
 
 combatant1 = Combatant(   \
-  hp            = 20     ,\
-  exhausts      = 10     ,\
   attackDie     = ad20   ,\
   bonusToHit    = 3      ,\
   damageDie     = d8+d4  ,\
@@ -99,8 +80,6 @@ combatant1 = Combatant(   \
 )
 
 combatant2 = Combatant(   \
-  hp            = 20     ,\
-  exhausts      = 10     ,\
   attackDie     = d20    ,\
   bonusToHit    = 1      ,\
   damageDie     = d8     ,\

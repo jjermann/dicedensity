@@ -487,3 +487,17 @@ class MultiDensity(Density):
   def keepRandom(self):
     n = len(self.densityList)
     return self.combine(*list([1.0/n]*n))
+
+d2   = Die(2)
+d3   = Die(3)
+d4   = Die(4)
+d6   = Die(6)
+d8   = Die(8)
+d10  = Die(10)
+d12  = Die(12)
+d20  = Die(20)
+d100 = Die(100)
+ad20 = AdvantageDie(20)
+aad20 = d20.asMultiDensity(3).drop_lowest(2)
+dd20 = DisadvantageDie(20)
+ddd20 = d20.asMultiDensity(3).drop_highest(2)
