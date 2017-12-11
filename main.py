@@ -3,6 +3,7 @@
 # Documentation: See https://github.com/jjermann/dicedensity
 
 from densities import *
+from combatant import *
 
 ex   = DieExpr("d5+ad15+m2d7+dd2-2")
 ex2  = ex.with_advantage()
@@ -82,68 +83,33 @@ durationDensity(10).plotImage("durationDensity10")
 #print(durationDensity(10).conditionalDensity(lambda k: k > 0))
 
 
-# Attacker vs. defender (fight)
-# -----------------------------
+# Two combatants fighting
+# -----------------------
 
-# This function returns a damage density (ranging over the possible damageAttacker rolls) parametrized by the attackRoll (usually d20)
-def attackDamageDensity(damageAttacker, damageBonusAttacker, damageResistanceDefender, hitBonusAttacker, evadeDefender, armorDefender):
-  def finalDamageDensity(attackRoll):
-    if (attackRoll + hitBonusAttacker) < evadeDefender:
-      return Zero()
+combatant1 = Combatant(   \
+  hp            = 20     ,\
+  exhausts      = 10     ,\
+  attackDie     = ad20   ,\
+  bonusToHit    = 3      ,\
+  damageDie     = d8+d4  ,\
+  bonusToDamage = 2      ,\
+  evade         = 2      ,\
+  armor         = 5      ,\
+  resistance    = 0       \
+)
 
-    if (attackRoll + hitBonusAttacker) < evadeDefender + armorDefender:
-      armorHitDamage = damageAttacker.op(lambda a: max(0, a + damageBonusAttacker - damageResistanceDefender))
-      return armorHitDamage
+combatant2 = Combatant(   \
+  hp            = 20     ,\
+  exhausts      = 10     ,\
+  attackDie     = d20    ,\
+  bonusToHit    = 1      ,\
+  damageDie     = d8     ,\
+  bonusToDamage = -1     ,\
+  evade         = 4      ,\
+  armor         = 10     ,\
+  resistance    = 6       \
+)
 
-    criticalHits = math.floor(((attackRoll + hitBonusAttacker) - (evadeDefender + armorDefender)) / 5)
-    criticalHitDamage = damageAttacker.arithMult(1 + criticalHits).op(lambda a: max(0, a + damageBonusAttacker))
-    return criticalHitDamage
-
-  return finalDamageDensity
-
-
-# All relevant parameters
-attackerDie              = ad20
-hitBonusAttacker         = 3
-damageAttacker           = d8+d4
-damageBonusAttacker      = 2
-damageResistanceAttacker = 2
-evadeAttacker            = 5
-armorAttacker            = 0
-
-defenderDie              = d20
-hitBonusDefender         = 1
-damageDefender           = d8
-damageBonusDefender      = -1
-damageResistanceDefender = 4
-evadeDefender            = 10
-armorDefender            = 6
-
-# Attacker damage density parametrized by damageAttacker rolls
-attackerDmgFunction = attackDamageDensity(damageAttacker, damageBonusAttacker, damageResistanceDefender, hitBonusAttacker, evadeDefender, armorDefender)
-# Expected damage from attacker for a given attackRoll
-def expectedAttackerDamage(attackRoll):
-  return attackerDmgFunction(attackRoll).expected()
-# Expected final damage from attacker (over all possible attackRolls)
-expectedTotalAttackerDamage = sum([attackerDie[k]*expectedAttackerDamage(k) for k in attackerDie.keys()])
-
-# Defender damage density parametrized by damageDefender rolls
-defenderDmgFunction = attackDamageDensity(damageDefender, damageBonusDefender, damageResistanceAttacker, hitBonusDefender, evadeAttacker, armorAttacker)
-# Expected damage from defender for a given attackRoll
-def expectedDefenderDamage(attackRoll):
-  return defenderDmgFunction(attackRoll).expected()
-# Expected final damage from defender (over all possible attackRolls)
-expectedTotalDefenderDamage = sum([defenderDie[k]*expectedDefenderDamage(k) for k in defenderDie.keys()])
-
-# Plots for attacker
-print()
-print("Expected total attacker damage: {}".format(expectedTotalAttackerDamage))
-print(get_plot(expectedAttackerDamage, attackerDie.keys()))
-plot_image(expectedAttackerDamage, inputs=attackerDie.keys(), name="ExpectedAttackerDamage", xlabel="Attack roll (Total expected damage: {})".format(expectedTotalAttackerDamage), ylabel="Expected attacker damage")
-
-# Plots for defender
-print()
-print("Expected total defender damage: {}".format(expectedTotalDefenderDamage))
-print(get_plot(expectedDefenderDamage, defenderDie.keys()))
-plot_image(expectedDefenderDamage, inputs=defenderDie.keys(), name="ExpectedDefenderDamage", xlabel="Attack roll (Total expected damage: {})".format(expectedTotalDefenderDamage), ylabel="Expected defender damage")
-
+print("\n")
+print(combatant1.plotDamage(combatant2))
+combatant1.plotDamageImage(combatant2)
