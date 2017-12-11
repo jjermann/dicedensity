@@ -22,12 +22,18 @@ class Combatant:
     criticalHitDamage = self.damageDie.arithMult(1 + criticalHits).op(lambda a: max(0, a + self.bonusToDamage))
     return criticalHitDamage
 
+  def chanceToHit(self, other):
+    isHit = lambda attackRoll: not isinstance(self.damageDensity(other, attackRoll), Zero)
+    chance = sum([self.attackDie[k]*(1.0 if isHit(k) else 0.0) for k in self.attackDie.keys()])
+    return chance
+
   def expectedDamage(self, other):
     return sum([self.attackDie[k]*self.damageDensity(other, k).expected() for k in self.attackDie.keys()])
 
   def plotDamage(self, other):
     res = ""
-    res += "{:>12}\t{:>12.5f}".format("Expected", self.expectedDamage(other)) + "\n\n"
+    res += "{:>12}\t{:>12.5f}".format("Expected", self.expectedDamage(other)) + "\n"
+    res += "{:>12}\t{:>12.5%}".format("Hit chance", self.chanceToHit(other)) + "\n\n"
     res += "{:>12}\t{:>12}\t{}".format("Result", "Exp. damage", "Plot") + "\n"
     res += get_plot(lambda k: self.damageDensity(other, k).expected(), self.attackDie.keys())
     return res
