@@ -1,9 +1,7 @@
 from densities import *
 
 class Combatant:
-  def __init__(self, hp, exhausts, attackDie, bonusToHit, damageDie, bonusToDamage, evade, armor, resistance):
-    self.hp = hp
-    self.exhausts = exhausts
+  def __init__(self, attackDie, bonusToHit, damageDie, bonusToDamage, evade, armor, resistance):
     self.attackDie = attackDie
     self.bonusToHit = bonusToHit
     self.damageDie = damageDie
@@ -30,6 +28,7 @@ class Combatant:
   def plotDamage(self, other):
     res = ""
     res += "{:>12}\t{:>12.5f}".format("Expected", self.expectedDamage(other)) + "\n\n"
+    res += "{:>12}\t{:>12}\t{}".format("Result", "Exp. damage", "Plot") + "\n"
     res += get_plot(lambda k: self.damageDensity(other, k).expected(), self.attackDie.keys())
     return res
 
