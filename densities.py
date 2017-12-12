@@ -9,14 +9,15 @@ from itertools import product
 from functools import reduce
 from statistics import median
 
-operators = {ast.Add: op.add, ast.Sub: op.sub, ast.Mult: op.mul,
+
+_operators = {ast.Add: op.add, ast.Sub: op.sub, ast.Mult: op.mul,
              ast.USub: op.neg,
              ast.Eq: op.eq, ast.NotEq: op.ne, ast.Lt: op.lt, ast.LtE: op.le, ast.Gt: op.gt, ast.GtE: op.ge}
 
-def eval_expr(expr):
-    return eval_(ast.parse(expr, mode='eval').body)
+def _eval_expr(expr):
+    return _eval(ast.parse(expr, mode='eval').body)
 
-def eval_(node):
+def _eval(node):
   if isinstance(node, ast.Num):
     return Constant(node.n)
   elif isinstance(node, ast.Name):
@@ -38,22 +39,17 @@ def eval_(node):
         resDensity = Die(die)
       return resDensity.arithMult(nr)
   elif isinstance(node, ast.BinOp):
-      return operators[type(node.op)](eval_(node.left), eval_(node.right))
+      return _operators[type(node.op)](_eval(node.left), _eval(node.right))
   elif isinstance(node, ast.UnaryOp):
-      return operators[type(node.op)](eval_(node.operand))
+      return _operators[type(node.op)](_eval(node.operand))
   elif isinstance(node, ast.Compare) and len(node.ops) == 1 and len(node.comparators) == 1:
-      return operators[type(node.ops[0])](eval_(node.left), eval_(node.comparators[0]))
+      return _operators[type(node.ops[0])](_eval(node.left), _eval(node.comparators[0]))
   else:
       raise TypeError(node)
 
-def getDensity(arg):
-  if isinstance(arg, (int, float)):
-    return Constant(arg)
+def DieExpr(expr):
+  return _eval_expr(expr)
 
-  if isinstance(arg, Density):
-    return arg
-  else:
-    raise ValueError("arg must be a Density or a number!")
 
 def plot_line(p, minP, maxP, plotWidth):
   aboveMax = p - maxP > 1e-9
@@ -167,9 +163,6 @@ def plot_image(p, inputs = range(-20, 20 + 1), name = None, xlabel = "Input", yl
   plt.savefig(name)
   plt.close(fig)
 
-def gaussMap(mu=0.0, stdev=1.0):
-  return lambda x: 1.0/math.sqrt(2*math.pi*stdev**2)*math.exp(-(x-mu)**2/(2.0*stdev**2))
-
 class Density:
   def __init__(self, densities):
     self._cdfList = None
@@ -191,6 +184,20 @@ class Density:
 
   def __repr__(self):
     return self.__str__()
+
+  @staticmethod
+  def _getDensity(arg):
+    if isinstance(arg, (int, float)):
+      return Constant(arg)
+
+    if isinstance(arg, Density):
+      return arg
+    else:
+      raise ValueError("arg must be a Density or a number!")
+
+  @staticmethod
+  def gaussMap(mu=0.0, stdev=1.0):
+    return lambda x: 1.0/math.sqrt(2*math.pi*stdev**2)*math.exp(-(x-mu)**2/(2.0*stdev**2))
 
   def keys(self):
     return sorted(self.densities.keys())
@@ -230,7 +237,7 @@ class Density:
     return MultiDensity(*densityList)
 
   def binOp(self, other, opr):
-    otherDensity = getDensity(other)
+    otherDensity = Density._getDensity(other)
     resDensity = {}
     for sKey in self.keys():
       for oKey in otherDensity.densities.keys():
@@ -269,7 +276,7 @@ class Density:
     return self.op(lambda k: abs(k))
 
   def prob(self, other, cond):
-    otherDensity = getDensity(other)
+    otherDensity = Density._getDensity(other)
     resSum = 0.0
     for sKey in self.keys():
       for oKey in otherDensity.densities.keys():
@@ -355,7 +362,7 @@ class Density:
         return (el + elPrev)/2.0
 
   def normalApproximation(self, x):
-    return gaussMap(self.expected(), self.stdev())(x)
+    return Density.gaussMap(self.expected(), self.stdev())(x)
 
   def plot(self, plotWidth=70):
     maxPerc = max(self.values())
@@ -427,8 +434,6 @@ def AdvantageDie(die):
 def DisadvantageDie(die):
   return Die(die).with_disadvantage()
 
-def DieExpr(expr):
-  return eval_expr(expr)
 
 class MultiDensity(Density):
   def __init__(self, *dList):
