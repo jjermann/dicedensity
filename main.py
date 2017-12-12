@@ -70,6 +70,8 @@ durationDensity(10).plotImage("durationDensity10")
 # -----------------------
 
 combatant1 = Combatant(   \
+  hp            = 20     ,\
+  exhausts      = 10     ,\
   attackDie     = ad20   ,\
   bonusToHit    = 3      ,\
   damageDie     = d8+d4  ,\
@@ -80,11 +82,13 @@ combatant1 = Combatant(   \
 )
 
 combatant2 = Combatant(   \
+  hp            = 20     ,\
+  exhausts      = 10     ,\
   attackDie     = d20    ,\
   bonusToHit    = 1      ,\
   damageDie     = d8     ,\
   bonusToDamage = -1     ,\
-  evade         = 4      ,\
+  evade         = 5      ,\
   armor         = 10     ,\
   resistance    = 6       \
 )
@@ -92,3 +96,6 @@ combatant2 = Combatant(   \
 print("\n")
 print(combatant1.plotDamage(combatant2))
 combatant1.plotDamageImage(combatant2)
+
+print()
+print("Chance to win combat: {:%}".format(combatant1.winProbability(combatant2, rounds=5)))

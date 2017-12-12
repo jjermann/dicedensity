@@ -1,7 +1,10 @@
+
 from densities import *
 
 class Combatant:
-  def __init__(self, attackDie, bonusToHit, damageDie, bonusToDamage, evade, armor, resistance):
+  def __init__(self, hp, exhausts, attackDie, bonusToHit, damageDie, bonusToDamage, evade, armor, resistance):
+    self.hp = hp
+    self.exhausts = exhausts
     self.attackDie = attackDie
     self.bonusToHit = bonusToHit
     self.damageDie = damageDie
@@ -9,6 +12,34 @@ class Combatant:
     self.evade = evade
     self.armor = armor
     self.resistance = resistance
+
+  def __str__(self):
+    res = ""
+    if self.isDead():
+      res += "DEAD!" + "\n"
+    if self.isUnconcious():
+      res += "Unconcious!" + "\n"
+    res += "{:>12}\t{:>12}".format("HP", self.hp) + "\n"
+    res += "{:>12}\t{:>12}".format("Exhausts", self.exhausts) + "\n"
+    return res
+
+  def __repr__(self):
+    return self.__str__()
+
+  def _state(self):
+    #return (self.hp, self.exhausts, self.attackDie, self.bonusToHit, self.damageDie, self.bonusToDamage, self.evade, self.armor, self.resistance)
+    return (self.hp, self.exhausts)
+
+  def __hash__(self):
+    return hash(self._state())
+
+  def __eq__(self, other):
+    if not isinstance(other, Combatant):
+      raise NotImplemented
+    return self._state() == other._state()
+
+  def clone(self):
+    return Combatant(self.hp, self.exhausts, self.attackDie, self.bonusToHit, self.damageDie, self.bonusToDamage, self.evade, self.armor, self.resistance)
 
   def damageDensity(self, other, attackRoll):
     if (attackRoll + self.bonusToHit) < other.evade:
@@ -46,3 +77,67 @@ class Combatant:
     ylabel = "Expected damage"
     plot_image(ExpectedDamage, inputs = inputs, xlabel=xlabel, ylabel=ylabel)
 
+  def isDead(self):
+    return self.hp <= 0
+
+  def isUnconcious(self):
+    return (not self.isDead()) and self.exhausts <= 0
+
+  def _attackedCombatant(self, other, attackRoll):
+    if (self.isDead() or self.isUnconcious()):
+      return other.clone()
+
+    damageDensity = self.damageDensity(other, attackRoll)
+    damage = damageDensity.expected()
+    isHit = not isinstance(self.damageDensity, Zero)
+    clone = other.clone()
+    clone.hp -= damage
+    if isHit:
+      clone.exhausts -= 1
+    return clone
+
+  @staticmethod
+  def _adjustedAttackDistribution(d, reversed=False):
+    dNew = {}
+    if reversed:
+      for (attacker, defender) in d:
+        for k in attacker.attackDie.keys():
+          defenderNew = attacker._attackedCombatant(defender, k)
+          if not (attacker, defenderNew) in dNew:
+            dNew[(attacker, defenderNew)] = 0.0
+          dNew[(attacker, defenderNew)] += attacker.attackDie[k]*d[(attacker, defender)]
+    else:
+      for (attacker, defender) in d:
+        for k in defender.attackDie.keys():
+          attackerNew = defender._attackedCombatant(attacker, k)
+          if not (attackerNew, defender) in dNew:
+            dNew[(attackerNew, defender)] = 0.0
+          dNew[(attackerNew, defender)] += defender.attackDie[k]*d[(attacker, defender)]
+    return dNew
+
+  @staticmethod
+  def _applyAttackRound(d):
+    dNew1 = Combatant._adjustedAttackDistribution(d)
+    dNew2 = Combatant._adjustedAttackDistribution(dNew1, reversed=True)
+    return dNew2
+
+  @staticmethod
+  def combatDistribution(attacker, defender, rounds = 1):
+    d = {(attacker, defender): 1.0}
+    for round in range(rounds):
+      d = Combatant._applyAttackRound(d)
+    return d
+
+  @staticmethod
+  def checkDistribution(d, cond):
+    return sum([d[(attacker, defender)] for (attacker, defender) in d if cond(attacker, defender)])
+
+  @staticmethod
+  def checkCombatResult(attacker, defender, cond, rounds = 1):
+    d = Combatant.combatDistribution(attacker, defender, rounds)
+    p = Combatant.checkDistribution(d, cond)
+    return p
+
+  def winProbability(self, defender, rounds = 10):
+    cond = lambda attacker, defender: defender.isDead() or defender.isUnconcious()
+    return Combatant.checkCombatResult(self, defender, cond, rounds)
