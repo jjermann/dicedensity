@@ -98,4 +98,5 @@ print(combatant1.plotDamage(combatant2))
 combatant1.plotDamageImage(combatant2)
 
 print()
-print("Chance to win combat: {:%}".format(combatant1.winProbability(combatant2, rounds=5)))
+winProbability = combatant1.winProbability(combatant2, maxError = 0.0001)
+print("Chance to win combat: {:.2%}".format(winProbability))

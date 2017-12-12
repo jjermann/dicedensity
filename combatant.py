@@ -14,13 +14,11 @@ class Combatant:
     self.resistance = resistance
 
   def __str__(self):
-    res = ""
+    res = "HP = {}, Exhausts = {}".format(self.hp, self.exhausts)
     if self.isDead():
-      res += "DEAD!" + "\n"
+      res += " (DEAD)"
     if self.isUnconcious():
-      res += "Unconcious!" + "\n"
-    res += "{:>12}\t{:>12}".format("HP", self.hp) + "\n"
-    res += "{:>12}\t{:>12}".format("Exhausts", self.exhausts) + "\n"
+      res += " (Unconcious)"
     return res
 
   def __repr__(self):
@@ -89,7 +87,7 @@ class Combatant:
 
     damageDensity = self.damageDensity(other, attackRoll)
     damage = damageDensity.expected()
-    isHit = not isinstance(self.damageDensity, Zero)
+    isHit = not isinstance(damageDensity, Zero)
     clone = other.clone()
     clone.hp -= damage
     if isHit:
@@ -138,6 +136,12 @@ class Combatant:
     p = Combatant.checkDistribution(d, cond)
     return p
 
-  def winProbability(self, defender, rounds = 10):
-    cond = lambda attacker, defender: defender.isDead() or defender.isUnconcious()
-    return Combatant.checkCombatResult(self, defender, cond, rounds)
+  def winProbability(self, defender, maxError = 0.001):
+    d = {(self, defender): 1.0}
+
+    undecidedCond = lambda attacker, defender: not attacker.isDead() and not defender.isDead() and not attacker.isUnconcious() and not defender.isUnconcious()
+    while Combatant.checkDistribution(d, undecidedCond) > maxError:
+      d = Combatant._applyAttackRound(d)
+
+    winCond = lambda attacker, defender: defender.isDead() or defender.isUnconcious()
+    return Combatant.checkDistribution(d, winCond)
