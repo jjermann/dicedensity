@@ -81,8 +81,14 @@ class Combatant:
   def isUnconcious(self):
     return (not self.isDead()) and self.exhausts <= 0
 
+  def canFight(self):
+    return not self.isDead() and not self.isUnconcious()
+
+  def cantFight(self):
+    return self.isDead() or self.isUnconcious()
+
   def _attackedCombatant(self, other, attackRoll):
-    if (self.isDead() or self.isUnconcious()):
+    if (self.cantFight()):
       return other.clone()
 
     damageDensity = self.damageDensity(other, attackRoll)
@@ -127,21 +133,38 @@ class Combatant:
     return d
 
   @staticmethod
-  def checkDistribution(d, cond):
+  def eventProbability(d, cond):
     return sum([d[(attacker, defender)] for (attacker, defender) in d if cond(attacker, defender)])
 
   @staticmethod
-  def checkCombatResult(attacker, defender, cond, rounds = 1):
+  def combatEventProbability(attacker, defender, cond, rounds = 1):
     d = Combatant.combatDistribution(attacker, defender, rounds)
-    p = Combatant.checkDistribution(d, cond)
+    p = Combatant.eventProbability(d, cond)
     return p
+
+  @staticmethod
+  def resultDensity(d, op):
+    density = {}
+    keys = set([op(attacker, defender) for (attacker, defender) in d])
+    for k in keys:
+      density[k] = Combatant.eventProbability(d, lambda attacker, defender: k == op(attacker, defender))
+    return Density(density)
+
+  @staticmethod
+  def combatResultDensity(attacker, defender, op, rounds = 1):
+    d = Combatant.combatDistribution(attacker, defender, rounds)
+    return Combatant.resultDensity(d, op)
+
+  def hpDensity(self, defender, rounds = 1):
+    op = lambda attacker, defender: attacker.hp
+    return Combatant.combatResultDensity(self, defender, op, rounds)
 
   def winProbability(self, defender, maxError = 0.001):
     d = {(self, defender): 1.0}
 
-    undecidedCond = lambda attacker, defender: not attacker.isDead() and not defender.isDead() and not attacker.isUnconcious() and not defender.isUnconcious()
-    while Combatant.checkDistribution(d, undecidedCond) > maxError:
+    undecidedCond = lambda attacker, defender: attacker.canFight() and defender.canFight()
+    while Combatant.eventProbability(d, undecidedCond) > maxError:
       d = Combatant._applyAttackRound(d)
 
-    winCond = lambda attacker, defender: defender.isDead() or defender.isUnconcious()
-    return Combatant.checkDistribution(d, winCond)
+    winCond = lambda attacker, defender: defender.cantFight()
+    return Combatant.eventProbability(d, winCond)
