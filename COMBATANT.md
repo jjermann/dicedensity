@@ -204,3 +204,8 @@ The following methods are defined on a given density `d`:
 
   :warning:  
   Smaller values of `maxError` lead to slower calculations of the result.
+
+  Example:
+  ```python3
+    print(combatant1.winProbability(combatant2))
+  ```
