@@ -59,7 +59,7 @@ A combatant has the following properties:
   The amount by which the `damageDie` result of an attacker that hits armor is reduced (see `armor`).
 
   :warning: (DND settings)  
-  By default `armor = 0` which corresponds to the DND system.
+  By default `resistance = 0` which corresponds to the DND system.
 
 Example:
 ```python3
