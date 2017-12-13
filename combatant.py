@@ -17,8 +17,8 @@ class Combatant:
     res = "HP = {}, Exhausts = {}".format(self.hp, self.exhausts)
     if self.isDead():
       res += " (DEAD)"
-    if self.isUnconcious():
-      res += " (Unconcious)"
+    if self.isUnconscious():
+      res += " (Unconscious)"
     return res
 
   def __repr__(self):
@@ -78,14 +78,14 @@ class Combatant:
   def isDead(self):
     return self.hp <= 0
 
-  def isUnconcious(self):
+  def isUnconscious(self):
     return (not self.isDead()) and self.exhausts <= 0
 
   def canFight(self):
-    return not self.isDead() and not self.isUnconcious()
+    return not self.isDead() and not self.isUnconscious()
 
   def cantFight(self):
-    return self.isDead() or self.isUnconcious()
+    return self.isDead() or self.isUnconscious()
 
   def _attackedCombatant(self, other, attackRoll):
     if (self.cantFight()):
