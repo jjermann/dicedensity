@@ -8,6 +8,7 @@ An extension module to densities to simulate (specific) combats.
 ## Documentation:
 ### Combatant
 A class that contains all relevant combat parameters for a combatant.
+Combatant can also be used for DND-like combats (see `DND settings` remarks).
 A combatant has the following properties:
 
 * **`hp`**  
@@ -19,6 +20,10 @@ A combatant has the following properties:
   The amount of exhaust points of the combatant (an integer).
   Each hit decreases exhausts by 1.
   If `exhausts` reaches 0 or below the combatant is considered unconscious (unless he is dead).
+
+  :warning: (DND settings)  
+  By default `exhausts = None` which corresponds to the DND system
+  (in this case exhausts isn't considered at all and in particular the combatant can only be dead or unconscious).
 
 * **`attackDie`**  
   The density that is used by the attacker to check if he hits the defender.
@@ -39,13 +44,22 @@ A combatant has the following properties:
   The evade value of the combatant (an integer).
   Another combatant has to reach at least this value with `attackDie` to be able to hit the combatant.
 
+  :warning: (DND settings)  
+  For DND `evade` is the same as `AC`.
+
 * **`armor`**  
   The armor (integer) of the combatant.
   If an attacker hits the combatant but with an `attackDie` result of less than `evade + armor`
   then the `resistance` of the combatant is subtracted from the `damageDie` result of the attacker.
 
+  :warning: (DND settings)  
+  By default `armor = 0` which corresponds to the DND system.
+
 * **`resistance`**  
   The amount by which the `damageDie` result of an attacker that hits armor is reduced (see `armor`).
+
+  :warning: (DND settings)  
+  By default `armor = 0` which corresponds to the DND system.
 
 Example:
 ```python3
@@ -71,6 +85,18 @@ Example:
       evade         = 5      ,\
       armor         = 10     ,\
       resistance    = 6       \
+    )
+```
+
+DND example:
+```python3
+    combatantDnd = Combatant( \
+      hp            = 20     ,\
+      attackDie     = d20    ,\
+      bonusToHit    = 1      ,\
+      damageDie     = d8     ,\
+      bonusToDamage = 3      ,\
+      evade         = 13      \
     )
 ```
 

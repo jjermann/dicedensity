@@ -2,7 +2,7 @@
 from densities import *
 
 class Combatant:
-  def __init__(self, hp, exhausts, attackDie, bonusToHit, damageDie, bonusToDamage, evade, armor, resistance):
+  def __init__(self, hp, attackDie, bonusToHit, damageDie, bonusToDamage, evade, armor = 0, resistance = 0, exhausts = None):
     self.hp = hp
     self.exhausts = exhausts
     self.attackDie = attackDie
@@ -14,7 +14,9 @@ class Combatant:
     self.resistance = resistance
 
   def __str__(self):
-    res = "HP = {}, Exhausts = {}".format(self.hp, self.exhausts)
+    res = "HP = {}".format(self.hp)
+    if not self.exhausts is None:
+      res += ", Exhausts = {}".format(self.exhausts)
     if self.isDead():
       res += " (DEAD)"
     if self.isUnconscious():
@@ -37,7 +39,7 @@ class Combatant:
     return self._state() == other._state()
 
   def clone(self):
-    return Combatant(self.hp, self.exhausts, self.attackDie, self.bonusToHit, self.damageDie, self.bonusToDamage, self.evade, self.armor, self.resistance)
+    return Combatant(self.hp, self.attackDie, self.bonusToHit, self.damageDie, self.bonusToDamage, self.evade, self.armor, self.resistance, self.exhausts)
 
   def damageDensity(self, other, attackRoll):
     if (attackRoll + self.bonusToHit) < other.evade:
@@ -79,7 +81,7 @@ class Combatant:
     return self.hp <= 0
 
   def isUnconscious(self):
-    return (not self.isDead()) and self.exhausts <= 0
+    return (not self.isDead()) and (not self.exhausts is None) and self.exhausts <= 0
 
   def canFight(self):
     return not self.isDead() and not self.isUnconscious()
@@ -96,7 +98,7 @@ class Combatant:
     isHit = not isinstance(damageDensity, Zero)
     clone = other.clone()
     clone.hp -= damage
-    if isHit:
+    if isHit and not clone.exhausts is None:
       clone.exhausts -= 1
     return clone
 
