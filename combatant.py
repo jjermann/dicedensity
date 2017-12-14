@@ -220,8 +220,28 @@ class Combatant:
     winCond = lambda attacker, defender: defender.cantFight()
     return Combatant.eventProbability(d, winCond)
 
+
 class DndCombatant(Combatant):
   def __init__(self, hp, attackDie, bonusToHit, damageDie, bonusToDamage, ac, damageDensity = None):
     if damageDensity is None:
       damageDensity = Combatant.dndDamageDensity
     Combatant.__init__(self, hp, attackDie, bonusToHit, damageDie, bonusToDamage, ac, damageDensity = damageDensity)
+
+
+class Dnd2NealCombatant(DndCombatant):
+  def __init__(self, hp, attackDie, bonusToHit, damageDie, bonusToDamage, ac):
+    def nealDamageDensity(attacker, defender, attackRoll):
+      if attackRoll == 1:
+        return Zero()
+      if (attackRoll + attacker.bonusToHit) < defender.evade and attackRoll < 20:
+        return Zero()
+
+      if attackRoll >= 18:
+        criticalHits = max(0, math.floor((attackRoll + attacker.bonusToHit - defender.evade) / 5))
+      else:
+        criticalHits = max(0, math.floor((attackRoll + attacker.bonusToHit - defender.evade) / 10))
+      criticalHits = min(3, criticalHits)
+
+      criticalHitDamage = attacker.damageDie.arithMult(1 + criticalHits).op(lambda a: max(0, a + attacker.bonusToDamage))
+      return criticalHitDamage
+    DndCombatant.__init__(self, hp, attackDie, bonusToHit, damageDie, bonusToDamage, ac, damageDensity = nealDamageDensity)

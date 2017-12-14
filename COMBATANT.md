@@ -89,7 +89,6 @@ Example:
 ```
 
 
-
 ### DndCombatant
 A subclass of `Combatant` with settings more suited for DND-like systems,
 without `exhausts`, `armor`, `resistance` and with `damageDensity = Combatant.dndDamageDensity`
@@ -98,12 +97,28 @@ without `exhausts`, `armor`, `resistance` and with `damageDensity = Combatant.dn
 Example:
 ```python3
     dndCombatant = DndCombatant( \
-      hp            = 20     ,\
-      attackDie     = d20    ,\
-      bonusToHit    = 1      ,\
-      damageDie     = d8     ,\
-      bonusToDamage = 3      ,\
-      evade         = 13      \
+      hp            = 20        ,\
+      attackDie     = d20       ,\
+      bonusToHit    = 1         ,\
+      damageDie     = d8        ,\
+      bonusToDamage = 3         ,\
+      ac            = 13         \
+    )
+```
+
+
+### Dnd2NealCombatant
+A subclass of `DndCombatant` according to the combat rules of _2.Neal_ from http://regalgoblins.com/toolbox.php.
+
+Example:
+```python3
+    nealCombatant = Dnd2NealCombatant( \
+      hp            = 20              ,\
+      attackDie     = ad20            ,\
+      bonusToHit    = 9               ,\
+      damageDie     = d8+d4           ,\
+      bonusToDamage = 3               ,\
+      ac            = 13               \
     )
 ```
 

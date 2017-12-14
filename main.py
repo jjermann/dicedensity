@@ -72,6 +72,25 @@ durationDensity(10).plotImage("durationDensity10")
 # Two combatants fighting
 # -----------------------
 
+# 2.Neal Combatant
+dnd2NealCombatant1 = Dnd2NealCombatant( \
+    hp             = 20                ,\
+    attackDie      = ad20              ,\
+    bonusToHit     = 9                 ,\
+    damageDie      = d8+d4             ,\
+    bonusToDamage  = 3                 ,\
+    ac             = 13                 \
+)
+dnd2NealCombatant2 = Dnd2NealCombatant( \
+    hp             = 20                ,\
+    attackDie      = d20               ,\
+    bonusToHit     = 9                 ,\
+    damageDie      = d8                ,\
+    bonusToDamage  = 3                 ,\
+    ac             = 18                 \
+)
+
+# New rules combatant (unfortunately the rules are not yet 100% clear)
 combatant1 = Combatant(   \
   hp            = 20     ,\
   exhausts      = 10     ,\
@@ -115,3 +134,8 @@ print()
 hpDensityAfter5Rounds = combatant1.hpDensity(combatant2, 5)
 print("HP distribution of combatant1 after 5 rounds of combat against combatant2:")
 print(hpDensityAfter5Rounds)
+print()
+
+
+winProbability2Neal = dnd2NealCombatant1.winProbability(dnd2NealCombatant2, chanceDefenderStarts = 0.5, maxError = 0.0001)
+print("Chance of dnd2NealCombatant1 to win against dnd2NealCombatant2 (random start): {:.2%}".format(winProbability2Neal))
