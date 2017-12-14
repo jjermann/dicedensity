@@ -186,8 +186,29 @@ class Combatant:
     op = lambda attacker, defender: attacker.hp
     return Combatant.combatResultDensity(self, defender, op, rounds)
 
-  def winProbability(self, defender, maxError = 0.001):
+  @staticmethod
+  def randomizeInitialAttacker(d, chanceDefenderStarts = 0.5):
+      dAttackerFirst = d
+      dDefenderFirst = Combatant._adjustedAttackDistribution(d, reversed=True)
+      dNew = {}
+      for (attacker, defender) in dAttackerFirst:
+        p = dAttackerFirst[(attacker, defender)] * (1.0 - chanceDefenderStarts)
+        if not (attacker, defender) in dNew:
+          dNew[(attacker, defender)] = p
+        else:
+          dNew[(attacker, defender)] += p
+      for (attacker, defender) in dDefenderFirst:
+        p = dDefenderFirst[(attacker, defender)] * chanceDefenderStarts
+        if not (attacker, defender) in dNew:
+          dNew[(attacker, defender)] = p
+        else:
+          dNew[(attacker, defender)] += p
+      return dNew
+
+  def winProbability(self, defender, chanceDefenderStarts = None, maxError = 0.001):
     d = {(self, defender): 1.0}
+    if not chanceDefenderStarts is None:
+      d = Combatant.randomizeInitialAttacker(d, chanceDefenderStarts)
 
     undecidedCond = lambda attacker, defender: attacker.canFight() and defender.canFight()
     while Combatant.eventProbability(d, undecidedCond) > maxError:

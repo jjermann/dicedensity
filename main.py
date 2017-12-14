@@ -103,10 +103,13 @@ combatant1.plotDamageImage(combatant2)
 print()
 
 winProbability = combatant1.winProbability(combatant2, maxError = 0.0001)
-print("Chance of combatant1 to win against combatant2: {:.2%}".format(winProbability))
+print("Chance of combatant1 to win against combatant2:             {:.2%}".format(winProbability))
 
 winProbabilitySelf = combatant1.winProbability(combatant1)
-print("Chance of combatant1 to win against himself:    {:.2%}".format(winProbabilitySelf))
+print("Chance of combatant1 to win against himself:                {:.2%}".format(winProbabilitySelf))
+
+winProbabilitySelfRandom = combatant1.winProbability(combatant1, chanceDefenderStarts = 0.5, maxError = 0.0001)
+print("Chance of combatant1 to win against himself (random start): {:.2%}".format(winProbabilitySelfRandom))
 print()
 
 hpDensityAfter5Rounds = combatant1.hpDensity(combatant2, 5)
