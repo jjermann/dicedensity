@@ -51,11 +51,14 @@ def expectedDuration(bonusAttacker):
   return durationDensity(bonusAttacker).expected()
 
 # Plotting
+print("Expected winProbability of a spell caster with attackerDie+bonusAttacker against a defender with defenderDie (parametrized by attackerDie):")
 print(get_plot(winProbability, plotWidth=60))
 #print(get_simple_plot(winProbability))
 print("\n")
+print("Expected spellDuration (same situation as above):")
 print(get_plot(expectedDuration))
 print("\n")
+print("All possible spell durations with their probabilities in case bonusAttacker = 10:")
 print(durationDensity(10))
 
 plot_image(winProbability)
@@ -94,12 +97,18 @@ combatant2 = Combatant(   \
 )
 
 print("\n")
+print("Expected damage of combatant1 against combatant2 for all attackRolls:")
 print(combatant1.plotDamage(combatant2))
 combatant1.plotDamageImage(combatant2)
+print()
 
-print()
 winProbability = combatant1.winProbability(combatant2, maxError = 0.0001)
-print("Chance to win combat: {:.2%}".format(winProbability))
+print("Chance of combatant1 to win against combatant2: {:.2%}".format(winProbability))
+
+winProbabilitySelf = combatant1.winProbability(combatant1)
+print("Chance of combatant1 to win against himself:    {:.2%}".format(winProbabilitySelf))
 print()
+
 hpDensityAfter5Rounds = combatant1.hpDensity(combatant2, 5)
+print("HP distribution of combatant1 after 5 rounds of combat against combatant2:")
 print(hpDensityAfter5Rounds)
