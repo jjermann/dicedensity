@@ -88,9 +88,16 @@ Example:
     )
 ```
 
-DND example:
+
+
+### DndCombatant
+A subclass of `Combatant` with settings more suited for DND-like systems,
+without `exhausts`, `armor`, `resistance` and with `damageDensity = Combatant.dndDamageDensity`
+(see below for more information) by default.
+
+Example:
 ```python3
-    combatantDnd = Combatant( \
+    dndCombatant = DndCombatant( \
       hp            = 20     ,\
       attackDie     = d20    ,\
       bonusToHit    = 1      ,\
@@ -99,12 +106,6 @@ DND example:
       evade         = 13      \
     )
 ```
-
-
-### DndCombatant
-A subclass of `Combatant` with settings more suited for DND-like systems,
-without `exhausts`, `armor`, `resistance` and with `damageDensity = Combatant.dndDamageDensity`
-(see below for more information) by default.
 
 
 ### Combatant methods
@@ -262,7 +263,7 @@ Example:
       criticalHits = 1 if attackRoll == maxValue 0 else
       damage = attacker.damageDie.arithMult(1 + criticalHits).op(lambda a: max(0, a + attacker.bonusToDamage))
       return damage
-    combatantDnd = Combatant( \
+    dndCombatant = Combatant( \
       hp            = 20     ,\
       attackDie     = d20    ,\
       bonusToHit    = 1      ,\
@@ -279,7 +280,7 @@ and is the default damage density for `DndCombatant`.
 
 Example:
 ```python3
-    combatantDnd = Combatant( \
+    dndCombatant = Combatant( \
       hp            = 20     ,\
       attackDie     = d20    ,\
       bonusToHit    = 1      ,\
