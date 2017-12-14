@@ -101,6 +101,12 @@ DND example:
 ```
 
 
+### DndCombatant
+A subclass of `Combatant` with settings more suited for DND-like systems,
+without `exhausts`, `armor`, `resistance` and with `damageDensity = Combatant.dndDamageDensity`
+(see below for more information) by default.
+
+
 ### Combatant methods
 The following methods are defined on a given density `d`:
 
@@ -267,8 +273,9 @@ Example:
     )
 ```
 
-By default the damage density is set to `Combatant.defaultDamageDensity`.
-The damage density from the example above is also available in `Combatant.dndDamageDensity`.
+By default the damage density for `Combatant` is set to `Combatant.defaultDamageDensity`.
+The damage density from the example above is also available in `Combatant.dndDamageDensity`
+and is the default damage density for `DndCombatant`.
 
 Example:
 ```python3

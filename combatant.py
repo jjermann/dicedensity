@@ -132,18 +132,18 @@ class Combatant:
     dNew = {}
     if reversed:
       for (attacker, defender) in d:
-        for k in attacker.attackDie.keys():
-          defenderNew = attacker._attackedCombatant(defender, k)
-          if not (attacker, defenderNew) in dNew:
-            dNew[(attacker, defenderNew)] = 0.0
-          dNew[(attacker, defenderNew)] += attacker.attackDie[k]*d[(attacker, defender)]
-    else:
-      for (attacker, defender) in d:
         for k in defender.attackDie.keys():
           attackerNew = defender._attackedCombatant(attacker, k)
           if not (attackerNew, defender) in dNew:
             dNew[(attackerNew, defender)] = 0.0
           dNew[(attackerNew, defender)] += defender.attackDie[k]*d[(attacker, defender)]
+    else:
+      for (attacker, defender) in d:
+        for k in attacker.attackDie.keys():
+          defenderNew = attacker._attackedCombatant(defender, k)
+          if not (attacker, defenderNew) in dNew:
+            dNew[(attacker, defenderNew)] = 0.0
+          dNew[(attacker, defenderNew)] += attacker.attackDie[k]*d[(attacker, defender)]
     return dNew
 
   @staticmethod
@@ -195,3 +195,9 @@ class Combatant:
 
     winCond = lambda attacker, defender: defender.cantFight()
     return Combatant.eventProbability(d, winCond)
+
+class DndCombatant(Combatant):
+  def __init__(self, hp, attackDie, bonusToHit, damageDie, bonusToDamage, ac, damageDensity = None):
+    if damageDensity is None:
+      damageDensity = Combatant.dndDamageDensity
+    Combatant.__init__(self, hp, attackDie, bonusToHit, damageDie, bonusToDamage, ac, damageDensity = damageDensity)
