@@ -137,5 +137,9 @@ print(hpDensityAfter5Rounds)
 print()
 
 
+print("Expected damage of dnd2NealCombatant1 against dnd2NealCombatant2 for all attackRolls:")
+print(dnd2NealCombatant1.plotDamage(dnd2NealCombatant2))
+print()
 winProbability2Neal = dnd2NealCombatant1.winProbability(dnd2NealCombatant2, chanceDefenderStarts = 0.5, maxError = 0.0001)
 print("Chance of dnd2NealCombatant1 to win against dnd2NealCombatant2 (random start): {:.2%}".format(winProbability2Neal))
+
