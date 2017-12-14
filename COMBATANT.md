@@ -154,8 +154,9 @@ The following methods are defined on a given density `d`:
 * **`cantFight(self)`**  
   Returns whether the combatant is unable to fight, i.e. whether he is dead or unconscious
 
-* **`Combatant.combatDistribution(attacker, defender, rounds = 1)`**  
+* **`Combatant.combatDistribution(attacker, defender, rounds = 1, chanceDefenderStarts = None)`**  
   Determines all possible combat end results after the given number of `rounds` together with their probabilities.
+  If `chanceDefenderStarts` is specified then the defender has the specified chance to attack beforehand.
   A result is a tuple (attacker, defender). The method returns a dictionary of all possible results as keys and the corresponding probabilities as values.
   The result dictionary can then be used again for further calculations...
 
@@ -180,10 +181,11 @@ The following methods are defined on a given density `d`:
     print(fightUndecidedCondition)
   ```
 
-* **`Combatant.combatEventProbability(attacker, defender, cond, rounds = 1)`**  
+* **`Combatant.combatEventProbability(attacker, defender, cond, rounds = 1, chanceDefenderStarts = None)`**  
   Returns the probability of a specified event/condition `cond` after the specified amount of
   `rounds` of combat between the given `attacker` and `defender` (both `Combatant`).
-  This is the same as calculating `d = Combatant.combatDistribution(attacker, defender, rounds)`
+  If `chanceDefenderStarts` is specified then the defender has the specified chance to attack beforehand.
+  This is the same as calculating `d = Combatant.combatDistribution(attacker, defender, rounds, chanceDefenderStarts)`
   and then calculating `p = Combatant.eventProbability(d, cond)`.
 
   Example:
@@ -207,10 +209,11 @@ The following methods are defined on a given density `d`:
     print(Combatant.resultDensity(d, attackerHpFunction))
   ```
 
-* **`Combatant.combatResultDensity(attacker, defender, op, rounds = 1)`**  
+* **`Combatant.combatResultDensity(attacker, defender, op, rounds = 1, chanceDefenderStarts = None)`**  
   Returns the Density over all possible results of `op(attacker, defender)`
   after a specified amount of `rounds` of combat between the given `attacker` and `defender`.
-  This is the same as calculating `d = Combatant.combatDistribution(attacker, defender, rounds)`
+  If `chanceDefenderStarts` is specified then the defender has the specified chance to attack beforehand.
+  This is the same as calculating `d = Combatant.combatDistribution(attacker, defender, rounds, chanceDefenderStarts)`
   and then calculating `p = Combatant.resultDensity(d, op)`.
 
   Example:
@@ -234,8 +237,9 @@ The following methods are defined on a given density `d`:
     print(dRandomizedStart)
   ```
 
-* **`hpDensity(self, defender, rounds = 1)`**  
+* **`hpDensity(self, defender, rounds = 1, chanceDefenderStarts = None)`**  
   Returns the density of the possible HPs of the combatant after the specified amount of `rounds` of combat against the specified `defender`.
+  If `chanceDefenderStarts` is specified then the defender has the specified chance to attack beforehand.
 
   Example:
   ```python3
