@@ -235,3 +235,53 @@ The following methods are defined on a given density `d`:
   ```python3
     print(combatant1.winProbability(combatant2))
   ```
+
+
+### More general damage densities
+It is possible to specify alternative damage densities for combatant.
+The damage density specifies the damage density for the damage dealt by an
+`attacker` to a `defender` given the attacker rolled `attackRoll`.
+The more genral damage density can be specified with the parameter `damageDensity`.
+
+Example:
+```python3
+    def dndDamageDensity(attacker, defender, attackRoll):
+      minValue = min(attacker.attackerDie.values())
+      maxValue = max(attacker.attackerDie.values())
+      if attackRoll == minValue:
+        return Zero()
+      if (attackRoll + attacker.bonusToHit) < defender.evade and attackRoll < maxValue:
+        return Zero()
+
+      criticalHits = 1 if attackRoll == maxValue 0 else
+      damage = attacker.damageDie.arithMult(1 + criticalHits).op(lambda a: max(0, a + attacker.bonusToDamage))
+      return damage
+    combatantDnd = Combatant( \
+      hp            = 20     ,\
+      attackDie     = d20    ,\
+      bonusToHit    = 1      ,\
+      damageDie     = d8     ,\
+      bonusToDamage = 3      ,\
+      evade         = 13     ,\
+      damageDensity = dndDamageDensity\
+    )
+```
+
+By default the damage density is set to `Combatant.defaultDamageDensity`.
+The damage density from the example above is also available in `Combatant.dndDamageDensity`.
+
+Example:
+```python3
+    combatantDnd = Combatant( \
+      hp            = 20     ,\
+      attackDie     = d20    ,\
+      bonusToHit    = 1      ,\
+      damageDie     = d8     ,\
+      bonusToDamage = 3      ,\
+      evade         = 13     ,\
+      damageDensity = Combatant.dndDamageDensity\
+    )
+```
+
+:warning:  
+Note that the logic when exhausts is reduced (assume it's not `None`) still remains the same (on a hit).

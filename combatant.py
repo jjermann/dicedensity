@@ -2,7 +2,7 @@
 from densities import *
 
 class Combatant:
-  def __init__(self, hp, attackDie, bonusToHit, damageDie, bonusToDamage, evade, armor = 0, resistance = 0, exhausts = None):
+  def __init__(self, hp, attackDie, bonusToHit, damageDie, bonusToDamage, evade, armor = 0, resistance = 0, exhausts = None, damageDensity = None):
     self.hp = hp
     self.exhausts = exhausts
     self.attackDie = attackDie
@@ -12,6 +12,10 @@ class Combatant:
     self.evade = evade
     self.armor = armor
     self.resistance = resistance
+    if damageDensity is None:
+      self._damageDensity = Combatant.defaultDamageDensity
+    else:
+      self._damageDensity = damageDensity
 
   def __str__(self):
     res = "HP = {}".format(self.hp)
@@ -39,41 +43,62 @@ class Combatant:
     return self._state() == other._state()
 
   def clone(self):
-    return Combatant(self.hp, self.attackDie, self.bonusToHit, self.damageDie, self.bonusToDamage, self.evade, self.armor, self.resistance, self.exhausts)
+    return Combatant(self.hp, self.attackDie, self.bonusToHit, self.damageDie, self.bonusToDamage, self.evade, self.armor, self.resistance, self.exhausts, self._damageDensity)
 
-  def damageDensity(self, other, attackRoll):
-    if (attackRoll + self.bonusToHit) < other.evade:
+  @staticmethod
+  def defaultDamageDensity(attacker, defender, attackRoll):
+    if (attackRoll + attacker.bonusToHit) < defender.evade:
       return Zero()
 
-    if attackRoll + self.bonusToHit < other.evade + other.armor:
-      armorHitDamage = self.damageDie.op(lambda a: max(0, a + self.bonusToDamage - other.resistance))
+    if attackRoll + attacker.bonusToHit < defender.evade + defender.armor:
+      armorHitDamage = attacker.damageDie.op(lambda a: max(0, a + attacker.bonusToDamage - defender.resistance))
       return armorHitDamage
 
-    criticalHits = math.floor(((attackRoll + self.bonusToHit) - (other.evade + other.armor)) / 5)
-    criticalHitDamage = self.damageDie.arithMult(1 + criticalHits).op(lambda a: max(0, a + self.bonusToDamage))
+    criticalHits = math.floor(((attackRoll + attacker.bonusToHit) - (defender.evade + defender.armor)) / 5)
+    damage = attacker.damageDie.arithMult(1 + criticalHits).op(lambda a: max(0, a + attacker.bonusToDamage))
+    return damage
+
+  @staticmethod
+  def dndDamageDensity(attacker, defender, attackRoll):
+    minValue = min(attacker.attackDie.values())
+    maxValue = max(attacker.attackDie.values())
+    if attackRoll == minValue:
+      return Zero()
+    if (attackRoll + attacker.bonusToHit) < defender.evade and attackRoll < maxValue:
+      return Zero()
+
+    if attackRoll + attacker.bonusToHit < defender.evade + defender.armor:
+      armorHitDamage = attacker.damageDie.op(lambda a: max(0, a + attacker.bonusToDamage - defender.resistance))
+      return armorHitDamage
+
+    criticalHits = math.floor(((attackRoll + attacker.bonusToHit) - (defender.evade + defender.armor)) / 5)
+    criticalHitDamage = attacker.damageDie.arithMult(1 + criticalHits).op(lambda a: max(0, a + attacker.bonusToDamage))
     return criticalHitDamage
 
-  def chanceToHit(self, other):
-    isHit = lambda attackRoll: not isinstance(self.damageDensity(other, attackRoll), Zero)
+  def damageDensity(self, defender, attackRoll):
+    return self._damageDensity(self, defender, attackRoll)
+
+  def chanceToHit(self, defender):
+    isHit = lambda attackRoll: not isinstance(self.damageDensity(defender, attackRoll), Zero)
     chance = sum([self.attackDie[k]*(1.0 if isHit(k) else 0.0) for k in self.attackDie.keys()])
     return chance
 
-  def expectedDamage(self, other):
-    return sum([self.attackDie[k]*self.damageDensity(other, k).expected() for k in self.attackDie.keys()])
+  def expectedDamage(self, defender):
+    return sum([self.attackDie[k]*self.damageDensity(defender, k).expected() for k in self.attackDie.keys()])
 
-  def plotDamage(self, other):
+  def plotDamage(self, defender):
     res = ""
-    res += "{:>12}\t{:>12.5f}".format("Expected", self.expectedDamage(other)) + "\n"
-    res += "{:>12}\t{:>12.5%}".format("Hit chance", self.chanceToHit(other)) + "\n\n"
+    res += "{:>12}\t{:>12.5f}".format("Expected", self.expectedDamage(defender)) + "\n"
+    res += "{:>12}\t{:>12.5%}".format("Hit chance", self.chanceToHit(defender)) + "\n\n"
     res += "{:>12}\t{:>12}\t{}".format("Result", "Exp. damage", "Plot") + "\n"
-    res += get_plot(lambda k: self.damageDensity(other, k).expected(), self.attackDie.keys())
+    res += get_plot(lambda k: self.damageDensity(defender, k).expected(), self.attackDie.keys())
     return res
 
-  def plotDamageImage(self, other):
+  def plotDamageImage(self, defender):
     def ExpectedDamage(attackRoll):
-      return self.damageDensity(other, attackRoll).expected()
+      return self.damageDensity(defender, attackRoll).expected()
     inputs = self.attackDie.keys()
-    xlabel = "Attack roll (Total expected damage: {})".format(self.expectedDamage(other))
+    xlabel = "Attack roll (Total expected damage: {})".format(self.expectedDamage(defender))
     ylabel = "Expected damage"
     plot_image(ExpectedDamage, inputs = inputs, xlabel=xlabel, ylabel=ylabel)
 
@@ -89,14 +114,14 @@ class Combatant:
   def cantFight(self):
     return self.isDead() or self.isUnconscious()
 
-  def _attackedCombatant(self, other, attackRoll):
+  def _attackedCombatant(self, defender, attackRoll):
     if (self.cantFight()):
-      return other.clone()
+      return defender.clone()
 
-    damageDensity = self.damageDensity(other, attackRoll)
+    damageDensity = self.damageDensity(defender, attackRoll)
     damage = damageDensity.expected()
     isHit = not isinstance(damageDensity, Zero)
-    clone = other.clone()
+    clone = defender.clone()
     clone.hp -= damage
     if isHit and not clone.exhausts is None:
       clone.exhausts -= 1
