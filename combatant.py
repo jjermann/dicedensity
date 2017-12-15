@@ -2,9 +2,10 @@
 from densities import *
 
 class Combatant:
-  def __init__(self, hp, attackDie, bonusToHit, damageDie, bonusToDamage, evade, armor = 0, resistance = 0, exhausts = None, damageDensity = None):
+  def __init__(self, hp, attackDie, bonusToHit, damageDie, bonusToDamage, evade, armor = 0, resistance = 0, maxFatigue = None, fatigue = 0, damageDensity = None):
     self.hp = hp
-    self.exhausts = exhausts
+    self.maxFatigue = maxFatigue
+    self.fatigue = fatigue
     self.attackDie = attackDie
     self.bonusToHit = bonusToHit
     self.damageDie = damageDie
@@ -19,20 +20,20 @@ class Combatant:
 
   def __str__(self):
     res = "HP = {}".format(self.hp)
-    if not self.exhausts is None:
-      res += ", Exhausts = {}".format(self.exhausts)
+    if not self.maxFatigue is None:
+      res += ", Fatigue = {}/{}".format(self.fatigue, self.maxFatigue)
     if self.isDead():
       res += " (DEAD)"
-    if self.isUnconscious():
-      res += " (Unconscious)"
+    else:
+      res += " (Fatigue: {})".format(self.fatigueState())
     return res
 
   def __repr__(self):
     return self.__str__()
 
   def _state(self):
-    #return (self.hp, self.exhausts, self.attackDie, self.bonusToHit, self.damageDie, self.bonusToDamage, self.evade, self.armor, self.resistance)
-    return (self.hp, self.exhausts)
+    #return (self.hp, self.fatigue, self.attackDie, self.bonusToHit, self.damageDie, self.bonusToDamage, self.evade, self.armor, self.resistance, self.maxFatigue)
+    return (self.hp, self.fatigue)
 
   def __hash__(self):
     return hash(self._state())
@@ -43,18 +44,18 @@ class Combatant:
     return self._state() == other._state()
 
   def clone(self):
-    return Combatant(self.hp, self.attackDie, self.bonusToHit, self.damageDie, self.bonusToDamage, self.evade, self.armor, self.resistance, self.exhausts, self._damageDensity)
+    return Combatant(self.hp, self.attackDie, self.bonusToHit, self.damageDie, self.bonusToDamage, self.evade, self.armor, self.resistance, self.maxFatigue, self.fatigue, self._damageDensity)
 
   @staticmethod
   def defaultDamageDensity(attacker, defender, attackRoll):
-    if (attackRoll + attacker.bonusToHit) < defender.evade:
+    if attackRoll + attacker.bonusToHit + attacker.fatigueModifier() < defender.evade:
       return Zero()
 
-    if attackRoll + attacker.bonusToHit < defender.evade + defender.armor:
+    if attackRoll + attacker.bonusToHit + attacker.fatigueModifier() < defender.evade + defender.armor:
       armorHitDamage = attacker.damageDie.op(lambda a: max(0, a + attacker.bonusToDamage - defender.resistance))
       return armorHitDamage
 
-    criticalHits = math.floor(((attackRoll + attacker.bonusToHit) - (defender.evade + defender.armor)) / 5)
+    criticalHits = math.floor(((attackRoll + attacker.bonusToHit + attacker.fatigueModifier()) - (defender.evade + defender.armor)) / 5)
     damage = attacker.damageDie.arithMult(1 + criticalHits).op(lambda a: max(0, a + attacker.bonusToDamage))
     return damage
 
@@ -64,16 +65,43 @@ class Combatant:
     maxValue = max(attacker.attackDie.values())
     if attackRoll == minValue:
       return Zero()
-    if (attackRoll + attacker.bonusToHit) < defender.evade and attackRoll < maxValue:
+    if attackRoll + attacker.bonusToHit + attacker.fatigueModifier() < defender.evade and attackRoll < maxValue:
       return Zero()
 
-    if attackRoll + attacker.bonusToHit < defender.evade + defender.armor:
+    if attackRoll + attacker.bonusToHit + attacker.fatigueModifier() < defender.evade + defender.armor:
       armorHitDamage = attacker.damageDie.op(lambda a: max(0, a + attacker.bonusToDamage - defender.resistance))
       return armorHitDamage
 
-    criticalHits = math.floor(((attackRoll + attacker.bonusToHit) - (defender.evade + defender.armor)) / 5)
+    criticalHits = math.floor(((attackRoll + attacker.bonusToHit + attacker.fatigueModifier()) - (defender.evade + defender.armor)) / 5)
     criticalHitDamage = attacker.damageDie.arithMult(1 + criticalHits).op(lambda a: max(0, a + attacker.bonusToDamage))
     return criticalHitDamage
+
+  def fatigueState(self):
+    if self.maxFatigue is None:
+      return "None"
+    if self.fatigue < self.maxFatigue / 4.0:
+      return "None"
+    elif self.fatigue < 2*self.maxFatigue / 4.0:
+      return "Light"
+    elif self.fatigue < 3*self.maxFatigue / 4.0:
+      return "Medium"
+    elif self.fatigue < self.maxFatigue:
+      return "Heavy"
+    else:
+      return "Unconscious"
+
+  def fatigueModifier(self):
+    fatigueState = self.fatigueState()
+    if fatigueState == "None":
+      return 0
+    if fatigueState == "Light":
+      return -1
+    if fatigueState == "Medium":
+      return -3
+    if fatigueState == "Heavy":
+      return -5
+    if fatigueState == "Unconscious":
+      return -5
 
   def damageDensity(self, defender, attackRoll):
     return self._damageDensity(self, defender, attackRoll)
@@ -106,7 +134,7 @@ class Combatant:
     return self.hp <= 0
 
   def isUnconscious(self):
-    return (not self.isDead()) and (not self.exhausts is None) and self.exhausts <= 0
+    return (not self.isDead()) and (not self.maxFatigue is None) and self.fatigue >= self.maxFatigue
 
   def canFight(self):
     return not self.isDead() and not self.isUnconscious()
@@ -123,8 +151,8 @@ class Combatant:
     isHit = not isinstance(damageDensity, Zero)
     clone = defender.clone()
     clone.hp -= damage
-    if isHit and not clone.exhausts is None:
-      clone.exhausts -= 1
+    if isHit and not clone.maxFatigue is None and clone.fatigue < clone.maxFatigue:
+      clone.fatigue += 1
     return clone
 
   @staticmethod

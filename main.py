@@ -93,7 +93,7 @@ dnd2NealCombatant2 = Dnd2NealCombatant( \
 # New rules combatant (unfortunately the rules are not yet 100% clear)
 combatant1 = Combatant(   \
   hp            = 20     ,\
-  exhausts      = 10     ,\
+  maxFatigue    = 10     ,\
   attackDie     = ad20   ,\
   bonusToHit    = 3      ,\
   damageDie     = d8+d4  ,\
@@ -105,7 +105,7 @@ combatant1 = Combatant(   \
 
 combatant2 = Combatant(   \
   hp            = 20     ,\
-  exhausts      = 10     ,\
+  maxFatigue    = 10     ,\
   attackDie     = d20    ,\
   bonusToHit    = 1      ,\
   damageDie     = d8     ,\

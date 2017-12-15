@@ -16,14 +16,17 @@ A combatant has the following properties:
   Each hit decreases HP by the amount of (expected) final damage dealt.
   If `hp` reaches 0 or below the combatant is considered dead.
 
-* **`exhausts`**  
-  The amount of exhaust points of the combatant (an integer).
-  Each hit decreases exhausts by 1.
-  If `exhausts` reaches 0 or below the combatant is considered unconscious (unless he is dead).
+* **`maxFatigue`**  
+  The maximal amount of fatigue points (an integer) the combatant can endure before he becomes unconscious.
 
   :warning: (DND settings)  
-  By default `exhausts = None` which corresponds to the DND system
-  (in this case exhausts isn't considered at all and in particular the combatant can only be dead or unconscious).
+  By default `maxFatigue = None` which corresponds to the DND system
+  (in this case fatigue isn't considered at all and in particular the combatant can't become unconscious, just dead).
+
+* **`fatigue`**  
+  The amount of fatigue points of the combatant (an integer, default: 0).
+  Each hit increases fatigue by 1 (unless `maxFatigue` is `None`).
+  If `fatigue` reaches `maxFatigue` the combatant is considered unconscious (unless he is dead).
 
 * **`attackDie`**  
   The density that is used by the attacker to check if he hits the defender.
@@ -65,7 +68,7 @@ Example:
 ```python3
     combatant1 = Combatant(   \
       hp            = 20     ,\
-      exhausts      = 10     ,\
+      maxFatigue    = 10     ,\
       attackDie     = ad20   ,\
       bonusToHit    = 3      ,\
       damageDie     = d8+d4  ,\
@@ -77,7 +80,7 @@ Example:
 
     combatant2 = Combatant(   \
       hp            = 20     ,\
-      exhausts      = 10     ,\
+      maxFatigue    = 10     ,\
       attackDie     = d20    ,\
       bonusToHit    = 1      ,\
       damageDie     = d8     ,\
@@ -91,7 +94,7 @@ Example:
 
 ### DndCombatant
 A subclass of `Combatant` with settings more suited for DND-like systems,
-without `exhausts`, `armor`, `resistance` and with `damageDensity = Combatant.dndDamageDensity`
+without `maxFatigue`, `fatigue`, `armor`, `resistance` and with `damageDensity = Combatant.dndDamageDensity`
 (see below for more information) by default.
 
 Example:
@@ -140,7 +143,7 @@ The following methods are defined on a given density `d`:
 
   :warning:  
   Note that it can also occur that a hit does 0 damage.
-  In that case the defender still loses an exhaust value.
+  In that case the defender still gains a fatigue value.
 
 * **`expectedDamage(self, other)`**  
   The expected damage against another combatant
@@ -161,7 +164,7 @@ The following methods are defined on a given density `d`:
   Returns whether the combatant is dead, i.e. whether `hp <= 0`
 
 * **`isUnconscious(self)`**  
-  Returns whether the combatant is unconscious, i.e. whether `exhausts <= 0` and `hp > 0`
+  Returns whether the combatant is unconscious, i.e. whether `fatigue >= maxFatigue` and `hp > 0`
 
 * **`canFight(self)`**  
   Returns whether the combatant can fight, i.e. whether he is neither dead nor unconscious
@@ -325,4 +328,4 @@ Example:
 ```
 
 :warning:  
-Note that the logic when exhausts is reduced (assume it's not `None`) still remains the same (on a hit).
+Note that the logic when `fatigue` is increased (assuming `maxFatigue` is not `None`) still remains the same (on a hit).
