@@ -123,6 +123,8 @@ print()
 
 winProbability = combatant1.winProbability(combatant2, maxError = 0.0001)
 print("Chance of combatant1 to win against combatant2:             {:.2%}".format(winProbability))
+#winProbabilityPrecise = combatant1.winProbability(combatant2, precise=True, maxError = 0.01)
+#print("Chance of combatant1 to win against combatant2 (precise):   {:.2%}".format(winProbabilityPrecise))
 
 winProbabilitySelf = combatant1.winProbability(combatant1)
 print("Chance of combatant1 to win against himself:                {:.2%}".format(winProbabilitySelf))

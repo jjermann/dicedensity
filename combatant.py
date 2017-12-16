@@ -142,7 +142,31 @@ class Combatant:
   def cantFight(self):
     return self.isDead() or self.isUnconscious()
 
-  def _attackedCombatant(self, defender, attackRoll):
+  def _attackedCombatantDistribution(self, defender, attackRoll):
+    d = {}
+    if (self.cantFight()):
+      return {defender.clone(): 1.0}
+
+    damageDensity = self.damageDensity(defender, attackRoll)
+    isHit = not isinstance(damageDensity, Zero)
+    applyFatigue = isHit and not defender.maxFatigue is None and defender.fatigue < defender.maxFatigue
+
+    if not isHit:
+      return {defender.clone(): 1.0}
+
+    d = {}
+    for damage in damageDensity.keys():
+      clone = defender.clone()
+      clone.hp -= damage
+      clone.hp = max(0, clone.hp)
+      if applyFatigue:
+        clone.fatigue += 1
+      if not clone in d:
+        d[clone] = 0.0
+      d[clone] += damageDensity[damage]
+    return d
+
+  def _expectedAttackedCombatant(self, defender, attackRoll):
     if (self.cantFight()):
       return defender.clone()
 
@@ -156,38 +180,52 @@ class Combatant:
     return clone
 
   @staticmethod
-  def _adjustedAttackDistribution(d, reversed=False):
+  def _adjustedAttackDistribution(d, reversed=False, precise=False):
     dNew = {}
     if reversed:
       for (attacker, defender) in d:
         for k in defender.attackDie.keys():
-          attackerNew = defender._attackedCombatant(attacker, k)
-          if not (attackerNew, defender) in dNew:
-            dNew[(attackerNew, defender)] = 0.0
-          dNew[(attackerNew, defender)] += defender.attackDie[k]*d[(attacker, defender)]
+          if precise:
+            attackerD = defender._attackedCombatantDistribution(attacker, k)
+            for attackerNew in attackerD:
+              if not (attackerNew, defender) in dNew:
+                dNew[(attackerNew, defender)] = 0.0
+              dNew[(attackerNew, defender)] += defender.attackDie[k]*d[(attacker, defender)]*attackerD[attackerNew]
+          else:
+            attackerNew = defender._expectedAttackedCombatant(attacker, k)
+            if not (attackerNew, defender) in dNew:
+              dNew[(attackerNew, defender)] = 0.0
+            dNew[(attackerNew, defender)] += defender.attackDie[k]*d[(attacker, defender)]
     else:
       for (attacker, defender) in d:
         for k in attacker.attackDie.keys():
-          defenderNew = attacker._attackedCombatant(defender, k)
-          if not (attacker, defenderNew) in dNew:
-            dNew[(attacker, defenderNew)] = 0.0
-          dNew[(attacker, defenderNew)] += attacker.attackDie[k]*d[(attacker, defender)]
+          if precise:
+            defenderD = attacker._attackedCombatantDistribution(defender, k)
+            for defenderNew in defenderD:
+              if not (attacker, defenderNew) in dNew:
+                dNew[(attacker, defenderNew)] = 0.0
+              dNew[(attacker, defenderNew)] += attacker.attackDie[k]*d[(attacker, defender)]*defenderD[defenderNew]
+          else:
+            defenderNew = attacker._expectedAttackedCombatant(defender, k)
+            if not (attacker, defenderNew) in dNew:
+              dNew[(attacker, defenderNew)] = 0.0
+            dNew[(attacker, defenderNew)] += attacker.attackDie[k]*d[(attacker, defender)]
     return dNew
 
   @staticmethod
-  def _applyAttackRound(d):
-    dNew1 = Combatant._adjustedAttackDistribution(d)
-    dNew2 = Combatant._adjustedAttackDistribution(dNew1, reversed=True)
+  def _applyAttackRound(d, precise=False):
+    dNew1 = Combatant._adjustedAttackDistribution(d, precise=precise)
+    dNew2 = Combatant._adjustedAttackDistribution(dNew1, reversed=True, precise=precise)
     return dNew2
 
   @staticmethod
-  def combatDistribution(attacker, defender, rounds = 1, chanceDefenderStarts = None):
+  def combatDistribution(attacker, defender, rounds = 1, chanceDefenderStarts = None, precise=False):
     d = {(attacker, defender): 1.0}
     if not chanceDefenderStarts is None:
-      d = Combatant.randomizeInitialAttacker(d, chanceDefenderStarts)
+      d = Combatant.randomizeInitialAttacker(d, chanceDefenderStarts, precise=precise)
 
     for round in range(rounds):
-      d = Combatant._applyAttackRound(d)
+      d = Combatant._applyAttackRound(d, precise=precise)
     return d
 
   @staticmethod
@@ -195,8 +233,8 @@ class Combatant:
     return sum([d[(attacker, defender)] for (attacker, defender) in d if cond(attacker, defender)])
 
   @staticmethod
-  def combatEventProbability(attacker, defender, cond, rounds = 1, chanceDefenderStarts = None):
-    d = Combatant.combatDistribution(attacker, defender, rounds, chanceDefenderStarts)
+  def combatEventProbability(attacker, defender, cond, rounds = 1, chanceDefenderStarts = None, precise=False):
+    d = Combatant.combatDistribution(attacker, defender, rounds, chanceDefenderStarts, precise=precise)
     p = Combatant.eventProbability(d, cond)
     return p
 
@@ -209,18 +247,18 @@ class Combatant:
     return Density(density)
 
   @staticmethod
-  def combatResultDensity(attacker, defender, op, rounds = 1, chanceDefenderStarts = None):
-    d = Combatant.combatDistribution(attacker, defender, rounds, chanceDefenderStarts)
+  def combatResultDensity(attacker, defender, op, rounds = 1, chanceDefenderStarts = None, precise=False):
+    d = Combatant.combatDistribution(attacker, defender, rounds, chanceDefenderStarts, precise=precise)
     return Combatant.resultDensity(d, op)
 
-  def hpDensity(self, defender, rounds = 1, chanceDefenderStarts = None):
+  def hpDensity(self, defender, rounds = 1, chanceDefenderStarts = None, precise=False):
     op = lambda attacker, defender: attacker.hp
-    return Combatant.combatResultDensity(self, defender, op, rounds, chanceDefenderStarts)
+    return Combatant.combatResultDensity(self, defender, op, rounds, chanceDefenderStarts, precise=precise)
 
   @staticmethod
-  def randomizeInitialAttacker(d, chanceDefenderStarts = 0.5):
+  def randomizeInitialAttacker(d, chanceDefenderStarts = 0.5, precise=False):
       dAttackerFirst = d
-      dDefenderFirst = Combatant._adjustedAttackDistribution(d, reversed=True)
+      dDefenderFirst = Combatant._adjustedAttackDistribution(d, reversed=True, precise=precise)
       dNew = {}
       for (attacker, defender) in dAttackerFirst:
         p = dAttackerFirst[(attacker, defender)] * (1.0 - chanceDefenderStarts)
@@ -236,14 +274,14 @@ class Combatant:
           dNew[(attacker, defender)] += p
       return dNew
 
-  def winProbability(self, defender, chanceDefenderStarts = None, maxError = 0.001):
+  def winProbability(self, defender, chanceDefenderStarts = None, precise=False, maxError = 0.001):
     d = {(self, defender): 1.0}
     if not chanceDefenderStarts is None:
-      d = Combatant.randomizeInitialAttacker(d, chanceDefenderStarts)
+      d = Combatant.randomizeInitialAttacker(d, chanceDefenderStarts, precise=precise)
 
     undecidedCond = lambda attacker, defender: attacker.canFight() and defender.canFight()
     while Combatant.eventProbability(d, undecidedCond) > maxError:
-      d = Combatant._applyAttackRound(d)
+      d = Combatant._applyAttackRound(d, precise=precise)
 
     winCond = lambda attacker, defender: defender.cantFight()
     return Combatant.eventProbability(d, winCond)

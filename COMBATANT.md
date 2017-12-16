@@ -172,9 +172,11 @@ The following methods are defined on a given density `d`:
 * **`cantFight(self)`**  
   Returns whether the combatant is unable to fight, i.e. whether he is dead or unconscious
 
-* **`Combatant.combatDistribution(attacker, defender, rounds = 1, chanceDefenderStarts = None)`**  
+* **`Combatant.combatDistribution(attacker, defender, rounds = 1, chanceDefenderStarts = None, precise = False)`**  
   Determines all possible combat end results after the given number of `rounds` together with their probabilities.
   If `chanceDefenderStarts` is specified then the defender has the specified chance to attack beforehand.
+  If `precise=True` is specified then more precise (significantly slower) calculations are done.
+
   A result is a tuple (attacker, defender). The method returns a dictionary of all possible results as keys and the corresponding probabilities as values.
   The result dictionary can then be used again for further calculations...
 
@@ -199,11 +201,12 @@ The following methods are defined on a given density `d`:
     print(fightUndecidedCondition)
   ```
 
-* **`Combatant.combatEventProbability(attacker, defender, cond, rounds = 1, chanceDefenderStarts = None)`**  
+* **`Combatant.combatEventProbability(attacker, defender, cond, rounds = 1, chanceDefenderStarts = None, precise = False)`**  
   Returns the probability of a specified event/condition `cond` after the specified amount of
   `rounds` of combat between the given `attacker` and `defender` (both `Combatant`).
   If `chanceDefenderStarts` is specified then the defender has the specified chance to attack beforehand.
-  This is the same as calculating `d = Combatant.combatDistribution(attacker, defender, rounds, chanceDefenderStarts)`
+  If `precise=True` is specified then more precise (significantly slower) calculations are done.
+  This is the same as calculating `d = Combatant.combatDistribution(attacker, defender, rounds, chanceDefenderStarts, precise)`
   and then calculating `p = Combatant.eventProbability(d, cond)`.
 
   Example:
@@ -227,11 +230,12 @@ The following methods are defined on a given density `d`:
     print(Combatant.resultDensity(d, attackerHpFunction))
   ```
 
-* **`Combatant.combatResultDensity(attacker, defender, op, rounds = 1, chanceDefenderStarts = None)`**  
+* **`Combatant.combatResultDensity(attacker, defender, op, rounds = 1, chanceDefenderStarts = None, precise = False)`**  
   Returns the Density over all possible results of `op(attacker, defender)`
   after a specified amount of `rounds` of combat between the given `attacker` and `defender`.
   If `chanceDefenderStarts` is specified then the defender has the specified chance to attack beforehand.
-  This is the same as calculating `d = Combatant.combatDistribution(attacker, defender, rounds, chanceDefenderStarts)`
+  If `precise=True` is specified then more precise (significantly slower) calculations are done.
+  This is the same as calculating `d = Combatant.combatDistribution(attacker, defender, rounds, chanceDefenderStarts, precise)`
   and then calculating `p = Combatant.resultDensity(d, op)`.
 
   Example:
@@ -245,8 +249,9 @@ The following methods are defined on a given density `d`:
     print(attackerPositiveHpDensity)
   ```
 
-* **`Combatant.randomizeInitialAttacker(d, chanceDefenderStarts = 0.5)`**  
+* **`Combatant.randomizeInitialAttacker(d, chanceDefenderStarts = 0.5, precise = False)`**  
   Returns a new distribution where the defender gets an initial attack in first according to the specified percentage `chanceDefenderStarts`.
+  If `precise=True` is specified then more precise (significantly slower) calculations are done.
 
   Example:
   ```python3
@@ -255,18 +260,20 @@ The following methods are defined on a given density `d`:
     print(dRandomizedStart)
   ```
 
-* **`hpDensity(self, defender, rounds = 1, chanceDefenderStarts = None)`**  
+* **`hpDensity(self, defender, rounds = 1, chanceDefenderStarts = None, precise = False)`**  
   Returns the density of the possible HPs of the combatant after the specified amount of `rounds` of combat against the specified `defender`.
   If `chanceDefenderStarts` is specified then the defender has the specified chance to attack beforehand.
+  If `precise=True` is specified then more precise (significantly slower) calculations are done.
 
   Example:
   ```python3
     print(combatant1.hpDensity(combatant2, rounds = 5))
   ```
 
-* **`winProbability(self, defender, chanceDefenderStarts = None, maxError = 0.001)`**  
+* **`winProbability(self, defender, chanceDefenderStarts = None, precise = False, maxError = 0.001)`**  
   Returns the probability that the combatant wins against the specified `defender` within the specified margin of error `maxError`.
   If `chanceDefenderStarts` is not specified then the attacker always starts.
+  If `precise=True` is specified then more precise (significantly slower) calculations are done.
   Otherwise the defender gets an initial attack according to the specified percentage
   (after that combatants always take turns as usual).
 
