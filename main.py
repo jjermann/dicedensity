@@ -133,9 +133,9 @@ winProbabilitySelfRandom = combatant1.winProbability(combatant1, chanceDefenderS
 print("Chance of combatant1 to win against himself (random start): {:.2%}".format(winProbabilitySelfRandom))
 print()
 
-hpDensityAfter5Rounds = combatant1.hpDensity(combatant2, 5)
-print("HP distribution of combatant1 after 5 rounds of combat against combatant2:")
-print(hpDensityAfter5Rounds)
+hpDensityAfter2Rounds = combatant1.hpDensity(combatant2, 2, precise=True)
+print("Precise HP distribution of combatant1 after 2 rounds of combat against combatant2:")
+print(hpDensityAfter2Rounds)
 print()
 
 
