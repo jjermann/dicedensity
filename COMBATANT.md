@@ -172,6 +172,14 @@ The following methods are defined on a given density `d`:
 * **`cantFight(self)`**  
   Returns whether the combatant is unable to fight, i.e. whether he is dead or unconscious
 
+
+### Combatant methods regarding combat distributions
+There are various methods to simulate combats.
+If `precise=False` then the expected damage is used instead of aggregating all
+possible damage results. For event probabilites (like `winProbability`)
+`precise=True` usually doesn't make a big difference in the result.
+If `precise=True` is set the calculations become *significantly slower*.
+
 * **`Combatant.combatDistribution(attacker, defender, rounds = 1, chanceDefenderStarts = None, precise = False)`**  
   Determines all possible combat end results after the given number of `rounds` together with their probabilities.
   If `chanceDefenderStarts` is specified then the defender has the specified chance to attack beforehand.
