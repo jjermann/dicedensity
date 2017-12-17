@@ -96,7 +96,7 @@ combatant1 = Combatant(   \
   maxFatigue    = 10     ,\
   attackDie     = ad20   ,\
   bonusToHit    = 3      ,\
-  damageDie     = d8+d4  ,\
+  damageDie     = d4     ,\
   bonusToDamage = 2      ,\
   evade         = 2      ,\
   armor         = 5      ,\
@@ -121,25 +121,23 @@ print(combatant1.plotDamage(combatant2))
 combatant1.plotDamageImage(combatant2)
 print()
 
-winProbability = combatant1.winProbability(combatant2, maxError = 0.0001)
+winProbability = combatant1.winProbability(combatant2, precise=False, maxError = 0.0001)
 print("Chance of combatant1 to win against combatant2:             {:.2%}".format(winProbability))
 
-winProbabilitySelf = combatant1.winProbability(combatant1)
+winProbabilitySelf = combatant1.winProbability(combatant1, precise=False, maxError = 0.0001)
 print("Chance of combatant1 to win against himself:                {:.2%}".format(winProbabilitySelf))
 
-winProbabilitySelfRandom = combatant1.winProbability(combatant1, chanceDefenderStarts = 0.5, maxError = 0.0001)
+winProbabilitySelfRandom = combatant1.winProbability(combatant1, chanceDefenderStarts = 0.5, precise=False, maxError = 0.001)
 print("Chance of combatant1 to win against himself (random start): {:.2%}".format(winProbabilitySelfRandom))
 print()
 
 print("Expected damage of dnd2NealCombatant1 against dnd2NealCombatant2 for all attackRolls:")
 print(dnd2NealCombatant1.plotDamage(dnd2NealCombatant2))
 print()
-winProbability2Neal = dnd2NealCombatant1.winProbability(dnd2NealCombatant2, chanceDefenderStarts = 0.5, maxError = 0.0001)
+winProbability2Neal = dnd2NealCombatant1.winProbability(dnd2NealCombatant2, chanceDefenderStarts = 0.5, maxError = 0.005)
 print("Chance of dnd2NealCombatant1 to win against dnd2NealCombatant2 (random start):          {:.2%}".format(winProbability2Neal))
-winProbability2NealPrecise = dnd2NealCombatant1.winProbability(dnd2NealCombatant2, chanceDefenderStarts = 0.5, maxError = 0.0001, precise=True)
-print("Chance of dnd2NealCombatant1 to win against dnd2NealCombatant2 (random start, precise): {:.2%}".format(winProbability2NealPrecise))
 
-hpDensityAfter5Rounds = dnd2NealCombatant1.hpDensity(dnd2NealCombatant2, 5, precise=True)
-print("Precise HP distribution of dnd2NealCombatant1 after 5 rounds of combat against dnd2NealCombatant2:")
-print(hpDensityAfter5Rounds)
+hpDensityAfter3Rounds = dnd2NealCombatant1.hpDensity(dnd2NealCombatant2, 3)
+print("HP distribution of dnd2NealCombatant1 after 3 rounds of combat against dnd2NealCombatant2:")
+print(hpDensityAfter3Rounds)
 print()
