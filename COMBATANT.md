@@ -129,7 +129,7 @@ Example:
 ### Combatant methods
 The following methods are defined on a given density `d`:
 
-* **`damageDensity(self, other, attackRoll)`**  
+* **`damageDensity(self, defender, attackRoll)`**  
   The damage density of the combatant against another combatant the given attackRoll
 
   For example `combatant1.damageDensity(combatant2, 10)` gives the density
@@ -138,17 +138,17 @@ The following methods are defined on a given density `d`:
   :warning:  
   `isinstance(damageDensity, Zero)` can be used to check if `combatant1` has hit `combatant2` at all.
 
-* **`chanceToHit(self, other)`**  
+* **`chanceToHit(self, defender)`**  
   The chance to hit another combatant
 
   :warning:  
   Note that it can also occur that a hit does 0 damage.
   In that case the defender still gains a fatigue value.
 
-* **`expectedDamage(self, other)`**  
+* **`expectedDamage(self, defender)`**  
   The expected damage against another combatant
 
-* **`plotDamage(self, other)`**  
+* **`plotDamage(self, defender)`**  
   Plots the expected damage against another combatant parametrized by possible attack rolls (from `attackDie`).
   The expected overall damage and the chance to hit is also printed.
 
@@ -157,7 +157,7 @@ The following methods are defined on a given density `d`:
     print(combatant1.plotDamage(combatant2))
   ```
 
-* **`plotDamageImage(self, other)`**  
+* **`plotDamageImage(self, defender)`**  
   Saves the expected damage (see `plotDamage`) as an image with name `ExpectedDamage.png`.
 
 * **`isDead(self)`**  

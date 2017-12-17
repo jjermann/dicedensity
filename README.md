@@ -145,7 +145,7 @@ For instance `d20 + 10` is the same as `d20 + Constant(10)`, i.e. the
 density corresponding to rolling a d20 and adding 10 with outcomes ranging from 11 to 30 (with probabilities 1/20).
 
   :warning:  
-  This can be particular confusing with multiplication:
+  This can be particularly confusing with multiplication:
   `2*d20` is the same as `Constant(2)*d20` and *not* the same as `d20+d20`.
   `Constant(2)*d20` corresponds to rolling a d20 and multiplying the result by 2 with outcomes 2, 4, ..., 40 (with probabilities 1/20).
   Adding the same density `n` times can be achieved with the method `arithMult` (see below).
