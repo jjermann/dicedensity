@@ -123,8 +123,6 @@ print()
 
 winProbability = combatant1.winProbability(combatant2, maxError = 0.0001)
 print("Chance of combatant1 to win against combatant2:             {:.2%}".format(winProbability))
-#winProbabilityPrecise = combatant1.winProbability(combatant2, precise=True, maxError = 0.01)
-#print("Chance of combatant1 to win against combatant2 (precise):   {:.2%}".format(winProbabilityPrecise))
 
 winProbabilitySelf = combatant1.winProbability(combatant1)
 print("Chance of combatant1 to win against himself:                {:.2%}".format(winProbabilitySelf))
@@ -133,15 +131,15 @@ winProbabilitySelfRandom = combatant1.winProbability(combatant1, chanceDefenderS
 print("Chance of combatant1 to win against himself (random start): {:.2%}".format(winProbabilitySelfRandom))
 print()
 
-hpDensityAfter2Rounds = combatant1.hpDensity(combatant2, 2, precise=True)
-print("Precise HP distribution of combatant1 after 2 rounds of combat against combatant2:")
-print(hpDensityAfter2Rounds)
-print()
-
-
 print("Expected damage of dnd2NealCombatant1 against dnd2NealCombatant2 for all attackRolls:")
 print(dnd2NealCombatant1.plotDamage(dnd2NealCombatant2))
 print()
 winProbability2Neal = dnd2NealCombatant1.winProbability(dnd2NealCombatant2, chanceDefenderStarts = 0.5, maxError = 0.0001)
-print("Chance of dnd2NealCombatant1 to win against dnd2NealCombatant2 (random start): {:.2%}".format(winProbability2Neal))
+print("Chance of dnd2NealCombatant1 to win against dnd2NealCombatant2 (random start):          {:.2%}".format(winProbability2Neal))
+winProbability2NealPrecise = dnd2NealCombatant1.winProbability(dnd2NealCombatant2, chanceDefenderStarts = 0.5, maxError = 0.0001, precise=True)
+print("Chance of dnd2NealCombatant1 to win against dnd2NealCombatant2 (random start, precise): {:.2%}".format(winProbability2NealPrecise))
 
+hpDensityAfter5Rounds = dnd2NealCombatant1.hpDensity(dnd2NealCombatant2, 5, precise=True)
+print("Precise HP distribution of dnd2NealCombatant1 after 5 rounds of combat against dnd2NealCombatant2:")
+print(hpDensityAfter5Rounds)
+print()
