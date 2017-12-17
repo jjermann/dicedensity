@@ -161,9 +161,10 @@ class Combatant:
       clone.hp = max(0, clone.hp)
       if applyFatigue:
         clone.fatigue += 1
-      if not clone in d:
-        d[clone] = 0.0
-      d[clone] += damageDensity[damage]
+      try:
+        d[clone] += damageDensity[damage]
+      except KeyError:
+        d[clone] = damageDensity[damage]
     return d
 
   def _expectedAttackedCombatant(self, defender, attackRoll):
@@ -189,28 +190,32 @@ class Combatant:
           if precise:
             attackerD = defender._attackedCombatantDistribution(attacker, k)
             for attackerNew in attackerD:
-              if not (attackerNew, defender) in dNew:
-                dNew[(attackerNew, defender)] = 0.0
-              dNew[(attackerNew, defender)] += defender.attackDie[k]*d[(attacker, defender)]*attackerD[attackerNew]
+              try:
+                dNew[(attackerNew, defender)] += defender.attackDie[k]*d[(attacker, defender)]*attackerD[attackerNew]
+              except KeyError:
+                dNew[(attackerNew, defender)] = defender.attackDie[k]*d[(attacker, defender)]*attackerD[attackerNew]
           else:
             attackerNew = defender._expectedAttackedCombatant(attacker, k)
-            if not (attackerNew, defender) in dNew:
-              dNew[(attackerNew, defender)] = 0.0
-            dNew[(attackerNew, defender)] += defender.attackDie[k]*d[(attacker, defender)]
+            try:
+              dNew[(attackerNew, defender)] += defender.attackDie[k]*d[(attacker, defender)]
+            except KeyError:
+              dNew[(attackerNew, defender)] = defender.attackDie[k]*d[(attacker, defender)]
     else:
       for (attacker, defender) in d:
         for k in attacker.attackDie.keys():
           if precise:
             defenderD = attacker._attackedCombatantDistribution(defender, k)
             for defenderNew in defenderD:
-              if not (attacker, defenderNew) in dNew:
-                dNew[(attacker, defenderNew)] = 0.0
-              dNew[(attacker, defenderNew)] += attacker.attackDie[k]*d[(attacker, defender)]*defenderD[defenderNew]
+              try:
+                dNew[(attacker, defenderNew)] += attacker.attackDie[k]*d[(attacker, defender)]*defenderD[defenderNew]
+              except KeyError:
+                dNew[(attacker, defenderNew)] = attacker.attackDie[k]*d[(attacker, defender)]*defenderD[defenderNew]
           else:
             defenderNew = attacker._expectedAttackedCombatant(defender, k)
-            if not (attacker, defenderNew) in dNew:
-              dNew[(attacker, defenderNew)] = 0.0
-            dNew[(attacker, defenderNew)] += attacker.attackDie[k]*d[(attacker, defender)]
+            try:
+              dNew[(attacker, defenderNew)] += attacker.attackDie[k]*d[(attacker, defender)]
+            except KeyError:
+              dNew[(attacker, defenderNew)] = attacker.attackDie[k]*d[(attacker, defender)]
     return dNew
 
   @staticmethod
@@ -275,7 +280,7 @@ class Combatant:
           dNew[(attacker, defender)] += p
       return dNew
 
-  def winProbability(self, defender, chanceDefenderStarts = None, precise=True, maxError = 0.001):
+  def winProbability(self, defender, chanceDefenderStarts = None, precise=True, maxError = 0.005):
     d = {(self, defender): 1.0}
     if not chanceDefenderStarts is None:
       d = Combatant.randomizeInitialAttacker(d, chanceDefenderStarts, precise=precise)
