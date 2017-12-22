@@ -176,7 +176,7 @@ The following methods are defined on a given density `d`:
 ### Combatant methods regarding combat distributions
 There are various methods to simulate combats.
 If `precise=False` then the expected damage is used instead of aggregating all possible damage
-results, this makes the calculations *significantly faster*.
+results, this makes the calculations *significantly faster* (around 100 times).
 
 * **`Combatant.combatDistribution(attacker, defender, rounds = 1, chanceDefenderStarts = None, precise = True)`**  
   Determines all possible combat end results after the given number of `rounds` together with their probabilities.

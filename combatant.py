@@ -290,8 +290,10 @@ class Combatant:
       d = Combatant._applyAttackRound(d, precise=precise)
 
     winCond = lambda attacker, defender: defender.cantFight()
-    return Combatant.eventProbability(d, winCond)
+    p = Combatant.eventProbability(d, winCond)
+    up = Combatant.eventProbability(d, undecidedCond)
 
+    return p + up*p/(1-up)
 
 class DndCombatant(Combatant):
   def __init__(self, hp, attackDie, bonusToHit, damageDie, bonusToDamage, ac, damageDensity = None):
