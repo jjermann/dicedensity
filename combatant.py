@@ -316,6 +316,6 @@ class Dnd2NealCombatant(DndCombatant):
         criticalHits = max(0, math.floor((attackRoll + attacker.bonusToHit - defender.evade) / 10))
       criticalHits = min(3, criticalHits)
 
-      criticalHitDamage = attacker.damageDie.arithMult(1 + criticalHits).op(lambda a: max(0, a + attacker.bonusToDamage))
+      criticalHitDamage = attacker.damageDie.arithMult(1 + criticalHits).op(lambda a: max(1, a + attacker.bonusToDamage))
       return criticalHitDamage
     DndCombatant.__init__(self, hp, attackDie, bonusToHit, damageDie, bonusToDamage, ac, damageDensity = nealDamageDensity)
