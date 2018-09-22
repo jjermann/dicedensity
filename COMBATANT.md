@@ -189,8 +189,13 @@ results, this makes the calculations *significantly faster* (around 100 times).
 If `simple=True` then it is assumed that the damage density remains the same for attacker and defender during the whole combat,
 this makes the calculations *significantly faster* as well but for instance doesn't consider exhaustion effects.
 
-* **`damageDensityDistribution(self, defender)`**
+* **`damageDensityDistribution(self, defender)`**  
   Returns all possible damage densities against the specified defender together with the respective probability as a distribution.
+
+  Example:
+  ```python3
+    d = combatant1.damageDensityDistribution(combatant2)
+  ```
 
 * **`Combatant.combatDistribution(attacker, defender, rounds = 1, chanceDefenderStarts = None, precise = True, simple = False)`**  
   Determines all possible combat end results after the given number of `rounds` together with their probabilities.
