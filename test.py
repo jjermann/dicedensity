@@ -17,7 +17,7 @@ ogreBro = DndNealTestCombatant(   \
   maxFatigue          = None
 )
 
-warrior = DndNealTestCombatant( \
+warrior = DndNealTestCombatant(   \
   hp                  = 50       ,\
   bonusToHit          = 31       ,\
   bonusToHitUnarmored = 31       ,\
@@ -41,5 +41,7 @@ print("Chance of Warrior to hit OgreBro:           {:>12.2%}".format(warriorHitO
 print("Expected damage of Warrior against OgreBro: {:>12.6}".format(warriorDmgAgainstOgre))
 print()
 
+# warning: Precise probability (i.e. not working with average damage) is around 51.5% instead of 47%:
+#          p = ogreBro.winProbability(warrior, precise=True, simple=True)
 p = ogreBro.simpleWinProbability(warrior)
 print("Win probability of OgreBro against Warrior: {:>12.2%}".format(p))
