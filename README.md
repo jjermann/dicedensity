@@ -17,6 +17,8 @@ Used for gaussMap and stdev
 Used for graphical plotting (plot_image, plotImage)
 * **median**  
 Used for median
+* **functools.lru_cache, functools.wraps**
+Used for memoized_method (performance related, could be removed)
 
 
 ## Files:
@@ -36,8 +38,12 @@ Main content
       * `AdvantageDie`
       * `DisadvantageDie`
       * `DieExpr`
+* **`combatant.py`**
+Combatant module for combat simulations, see [COMBATANT.md](COMBATANT.md).
 * **`main.py`**  
 Examples on how to use/apply densities.py
+* **`test.py`**  
+A simple example for simulating combats between `DndNealTestCombatant`.
 
 
 ## Documentation:

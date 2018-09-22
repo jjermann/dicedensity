@@ -135,6 +135,25 @@ Example:
 ```
 
 
+### DndNealTestCombatant
+A subclass of `Combatant` according to the (experimental) new combat rules of Neal.
+
+Example:
+```python3
+    nealTestCombatant = DndNealTestCombatant( \
+      hp                  = 100              ,\
+      bonusToHit          = 0                ,\
+      bonusToHitUnarmored = 0                ,\
+      damageDie           = d10+d10          ,\
+      bonusToDamage       = 0                ,\
+      evade               = 20               ,\
+      criticalThreshold   = 30               ,\
+      armor               = 0                ,\
+      maxFatigue          = None
+    )
+```
+
+
 ### Combatant methods
 The following methods are defined on a given density `d`:
 
