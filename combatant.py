@@ -150,12 +150,11 @@ class Combatant:
   def cantFight(self):
     return self.isDead() or self.isUnconscious()
 
-  def _attackedCombatantDistribution(self, defender, attackRoll):
+  def _attackedCombatantDistribution(self, defender, damageDensity):
     d = {}
     if (self.cantFight()):
       return {defender.clone(): 1.0}
 
-    damageDensity = self.damageDensity(defender, attackRoll)
     isHit = not isinstance(damageDensity, Zero)
     applyFatigue = isHit and not defender.maxFatigue is None and defender.fatigue < defender.maxFatigue
 
@@ -175,11 +174,10 @@ class Combatant:
         d[clone] = damageDensity[damage]
     return d
 
-  def _expectedAttackedCombatant(self, defender, attackRoll):
+  def _expectedAttackedCombatant(self, defender, damageDensity):
     if (self.cantFight()):
       return defender.clone()
 
-    damageDensity = self.damageDensity(defender, attackRoll)
     damage = damageDensity.expected()
     isHit = not isinstance(damageDensity, Zero)
     clone = defender.clone()
@@ -195,15 +193,16 @@ class Combatant:
     if reversed:
       for (attacker, defender) in d:
         for k in defender.attackDie.keys():
+          damageDensity = defender.damageDensity(attacker, k)
           if precise:
-            attackerD = defender._attackedCombatantDistribution(attacker, k)
+            attackerD = defender._attackedCombatantDistribution(attacker, damageDensity)
             for attackerNew in attackerD:
               try:
                 dNew[(attackerNew, defender)] += defender.attackDie[k]*d[(attacker, defender)]*attackerD[attackerNew]
               except KeyError:
                 dNew[(attackerNew, defender)] = defender.attackDie[k]*d[(attacker, defender)]*attackerD[attackerNew]
           else:
-            attackerNew = defender._expectedAttackedCombatant(attacker, k)
+            attackerNew = defender._expectedAttackedCombatant(attacker, damageDensity)
             try:
               dNew[(attackerNew, defender)] += defender.attackDie[k]*d[(attacker, defender)]
             except KeyError:
@@ -211,15 +210,16 @@ class Combatant:
     else:
       for (attacker, defender) in d:
         for k in attacker.attackDie.keys():
+          damageDensity = attacker.damageDensity(defender, k)
           if precise:
-            defenderD = attacker._attackedCombatantDistribution(defender, k)
+            defenderD = attacker._attackedCombatantDistribution(defender, damageDensity)
             for defenderNew in defenderD:
               try:
                 dNew[(attacker, defenderNew)] += attacker.attackDie[k]*d[(attacker, defender)]*defenderD[defenderNew]
               except KeyError:
                 dNew[(attacker, defenderNew)] = attacker.attackDie[k]*d[(attacker, defender)]*defenderD[defenderNew]
           else:
-            defenderNew = attacker._expectedAttackedCombatant(defender, k)
+            defenderNew = attacker._expectedAttackedCombatant(defender, damageDensity)
             try:
               dNew[(attacker, defenderNew)] += attacker.attackDie[k]*d[(attacker, defender)]
             except KeyError:

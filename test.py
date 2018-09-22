@@ -32,7 +32,7 @@ ogreBro = DndNealTestCombatant(   \
 warrior = DndNealTestCombatant( \
   hp                  = 50       ,\
   bonusToHit          = 31       ,\
-  bonusToHitUnarmored = 0        ,\
+  bonusToHitUnarmored = 31       ,\
   damageDie           = d6+d6    ,\
   bonusToDamage       = 0        ,\
   evade               = 49       ,\
@@ -41,11 +41,20 @@ warrior = DndNealTestCombatant( \
   maxFatigue          = None
 )
 
-print("Chance of OgreBro to hit Warrior:           {:>12.2%}".format(ogreBro.chanceToHit(warrior)))
-print("Expected damage of OgreBro against Warrior: {:>12.6}".format(ogreBro.expectedDamage(warrior)))
-print()
-print("Chance of Warrior to hit OgreBro:           {:>12.2%}".format(warrior.chanceToHit(ogreBro)))
-print("Expected damage of Warrior against OgreBro: {:>12.6}".format(warrior.expectedDamage(ogreBro)))
+ogreHitWarrior = ogreBro.chanceToHit(warrior)
+ogreDmgAgainstWarrior = ogreBro.expectedDamage(warrior)
+warriorHitOgre = warrior.chanceToHit(ogreBro)
+warriorDmgAgainstOgre = warrior.expectedDamage(ogreBro)
 
-#print(ogreBro.winProbability(warrior, chanceDefenderStarts = 0.5))
+print("Chance of OgreBro to hit Warrior:           {:>12.2%}".format(ogreHitWarrior))
+print("Expected damage of OgreBro against Warrior: {:>12.6}".format(ogreDmgAgainstWarrior))
+print()
+print("Chance of Warrior to hit OgreBro:           {:>12.2%}".format(warriorHitOgre))
+print("Expected damage of Warrior against OgreBro: {:>12.6}".format(warriorDmgAgainstOgre))
+print()
+
+maxError = 0.05
+ogreWinProb = ogreBro.winProbability(warrior, chanceDefenderStarts = 0.5, precise = False, maxError = maxError)
+print("Win probability of OgreBro against Warrior: {:>12.2%} +- {:.2%}".format(ogreWinProb, maxError))
+print()
 
