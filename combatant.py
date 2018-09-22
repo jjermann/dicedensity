@@ -125,12 +125,14 @@ class Combatant:
     return d
 
   def chanceToHit(self, defender):
-    isHit = lambda attackRoll: not isinstance(self.damageDensity(defender, attackRoll), Zero)
-    chance = sum([self.attackDie[k]*(1.0 if isHit(k) else 0.0) for k in self.attackDie.keys()])
+    d = self.damageDensityDistribution(defender)
+    isHit = lambda damageDensity: not isinstance(damageDensity, Zero)
+    chance = sum([d[damageDensity]*(1.0 if isHit(damageDensity) else 0.0) for damageDensity in d])
     return chance
 
   def expectedDamage(self, defender):
-    return sum([self.attackDie[k]*self.damageDensity(defender, k).expected() for k in self.attackDie.keys()])
+    d = self.damageDensityDistribution(defender)
+    return sum([d[damageDensity]*damageDensity.expected() for damageDensity in d])
 
   def plotDamage(self, defender):
     res = ""
@@ -200,93 +202,54 @@ class Combatant:
     return clone
 
   @staticmethod
-  def _simpleAdjustedAttackDistribution(d, attackerDmgDist, defenderDmgDist, reversed=False, precise=True):
+  def _adjustedAttackDistribution(d, reversed=False, precise=True, simple=False, attackerDmgDist=None, defenderDmgDist=None):
     dNew = {}
     if reversed:
-      damageDensityDistribution = defenderDmgDist
+      if simple:
+        dd = defenderDmgDist
       for (attacker, defender) in d:
-        for damageDensity in damageDensityDistribution.keys():
-          p = damageDensityDistribution[damageDensity]
+        if not simple:
+          dd = defender.damageDensityDistribution(attacker)
+        for damageDensity in dd:
           if precise:
             attackerD = defender._attackedCombatantDistribution(attacker, damageDensity)
             for attackerNew in attackerD:
               try:
-                dNew[(attackerNew, defender)] += p*d[(attacker, defender)]*attackerD[attackerNew]
+                dNew[(attackerNew, defender)] += dd[damageDensity]*d[(attacker, defender)]*attackerD[attackerNew]
               except KeyError:
-                dNew[(attackerNew, defender)] = p*d[(attacker, defender)]*attackerD[attackerNew]
+                dNew[(attackerNew, defender)] = dd[damageDensity]*d[(attacker, defender)]*attackerD[attackerNew]
           else:
             attackerNew = defender._expectedAttackedCombatant(attacker, damageDensity)
             try:
-              dNew[(attackerNew, defender)] += p*d[(attacker, defender)]
+              dNew[(attackerNew, defender)] += dd[damageDensity]*d[(attacker, defender)]
             except KeyError:
-              dNew[(attackerNew, defender)] = p*d[(attacker, defender)]
+              dNew[(attackerNew, defender)] = dd[damageDensity]*d[(attacker, defender)]
     else:
-      damageDensityDistribution = attackerDmgDist
+      if simple:
+        dd = attackerDmgDist
       for (attacker, defender) in d:
-        for damageDensity in damageDensityDistribution.keys():
-          p = damageDensityDistribution[damageDensity]
+        if not simple:
+          dd = attacker.damageDensityDistribution(defender)
+        for damageDensity in dd:
           if precise:
             defenderD = attacker._attackedCombatantDistribution(defender, damageDensity)
             for defenderNew in defenderD:
               try:
-                dNew[(attacker, defenderNew)] += p*d[(attacker, defender)]*defenderD[defenderNew]
+                dNew[(attacker, defenderNew)] += dd[damageDensity]*d[(attacker, defender)]*defenderD[defenderNew]
               except KeyError:
-                dNew[(attacker, defenderNew)] = p*d[(attacker, defender)]*defenderD[defenderNew]
+                dNew[(attacker, defenderNew)] = dd[damageDensity]*d[(attacker, defender)]*defenderD[defenderNew]
           else:
             defenderNew = attacker._expectedAttackedCombatant(defender, damageDensity)
             try:
-              dNew[(attacker, defenderNew)] += p*d[(attacker, defender)]
+              dNew[(attacker, defenderNew)] += dd[damageDensity]*d[(attacker, defender)]
             except KeyError:
-              dNew[(attacker, defenderNew)] = p*d[(attacker, defender)]
-    return dNew
-
-  @staticmethod
-  def _adjustedAttackDistribution(d, reversed=False, precise=True):
-    dNew = {}
-    if reversed:
-      for (attacker, defender) in d:
-        for k in defender.attackDie.keys():
-          damageDensity = defender.damageDensity(attacker, k)
-          if precise:
-            attackerD = defender._attackedCombatantDistribution(attacker, damageDensity)
-            for attackerNew in attackerD:
-              try:
-                dNew[(attackerNew, defender)] += defender.attackDie[k]*d[(attacker, defender)]*attackerD[attackerNew]
-              except KeyError:
-                dNew[(attackerNew, defender)] = defender.attackDie[k]*d[(attacker, defender)]*attackerD[attackerNew]
-          else:
-            attackerNew = defender._expectedAttackedCombatant(attacker, damageDensity)
-            try:
-              dNew[(attackerNew, defender)] += defender.attackDie[k]*d[(attacker, defender)]
-            except KeyError:
-              dNew[(attackerNew, defender)] = defender.attackDie[k]*d[(attacker, defender)]
-    else:
-      for (attacker, defender) in d:
-        for k in attacker.attackDie.keys():
-          damageDensity = attacker.damageDensity(defender, k)
-          if precise:
-            defenderD = attacker._attackedCombatantDistribution(defender, damageDensity)
-            for defenderNew in defenderD:
-              try:
-                dNew[(attacker, defenderNew)] += attacker.attackDie[k]*d[(attacker, defender)]*defenderD[defenderNew]
-              except KeyError:
-                dNew[(attacker, defenderNew)] = attacker.attackDie[k]*d[(attacker, defender)]*defenderD[defenderNew]
-          else:
-            defenderNew = attacker._expectedAttackedCombatant(defender, damageDensity)
-            try:
-              dNew[(attacker, defenderNew)] += attacker.attackDie[k]*d[(attacker, defender)]
-            except KeyError:
-              dNew[(attacker, defenderNew)] = attacker.attackDie[k]*d[(attacker, defender)]
+              dNew[(attacker, defenderNew)] = dd[damageDensity]*d[(attacker, defender)]
     return dNew
 
   @staticmethod
   def _applyAttackRound(d, precise=True, simple=False, attackerDmgDist=None, defenderDmgDist=None):
-    if simple:
-      dNew1 = Combatant._simpleAdjustedAttackDistribution(d, attackerDmgDist, defenderDmgDist, precise=precise)
-      dNew2 = Combatant._simpleAdjustedAttackDistribution(dNew1, attackerDmgDist, defenderDmgDist, reversed=True, precise=precise)
-    else:
-      dNew1 = Combatant._adjustedAttackDistribution(d, precise=precise)
-      dNew2 = Combatant._adjustedAttackDistribution(dNew1, reversed=True, precise=precise)
+    dNew1 = Combatant._adjustedAttackDistribution(d, precise=precise, simple=simple, attackerDmgDist=attackerDmgDist, defenderDmgDist=defenderDmgDist)
+    dNew2 = Combatant._adjustedAttackDistribution(dNew1, reversed=True, precise=precise, simple=simple, attackerDmgDist=attackerDmgDist, defenderDmgDist=defenderDmgDist)
     return dNew2
 
   @staticmethod
