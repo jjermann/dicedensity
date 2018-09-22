@@ -2,7 +2,7 @@
 from densities import *
 
 class Combatant:
-  def __init__(self, hp, attackDie, bonusToHit, damageDie, bonusToDamage, evade, armor = 0, resistance = 0, maxFatigue = None, fatigue = 0, damageDensity = None):
+  def __init__(self, hp, attackDie, bonusToHit, damageDie, bonusToDamage, evade, armor = 0, resistance = 0, maxFatigue = None, fatigue = 0, criticalThreshold = 5, damageDensity = None, bonusToHitUnarmored = None):
     self.hp = hp
     self.maxFatigue = maxFatigue
     self.fatigue = fatigue
@@ -13,6 +13,8 @@ class Combatant:
     self.evade = evade
     self.armor = armor
     self.resistance = resistance
+    self.criticalThreshold = criticalThreshold
+    self.bonusToHitUnarmored = bonusToHitUnarmored
     if damageDensity is None:
       self._damageDensity = Combatant.defaultDamageDensity
     else:
@@ -44,7 +46,7 @@ class Combatant:
     return self._state() == other._state()
 
   def clone(self):
-    return Combatant(self.hp, self.attackDie, self.bonusToHit, self.damageDie, self.bonusToDamage, self.evade, self.armor, self.resistance, self.maxFatigue, self.fatigue, self._damageDensity)
+    return Combatant(self.hp, self.attackDie, self.bonusToHit, self.damageDie, self.bonusToDamage, self.evade, self.armor, self.resistance, self.maxFatigue, self.fatigue, self.criticalThreshold, self._damageDensity, self.bonusToHitUnarmored)
 
   @staticmethod
   def defaultDamageDensity(attacker, defender, attackRoll):
@@ -55,7 +57,10 @@ class Combatant:
       armorHitDamage = attacker.damageDie.op(lambda a: max(0, a + attacker.bonusToDamage - defender.resistance))
       return armorHitDamage
 
-    criticalHits = math.floor(((attackRoll + attacker.bonusToHit + attacker.fatigueModifier()) - (defender.evade + defender.armor)) / 5)
+    if (attacker.criticalThreshold is None):
+      criticalHits = 0
+    else:
+      criticalHits = math.floor(((attackRoll + attacker.bonusToHit + attacker.fatigueModifier()) - (defender.evade + defender.armor)) / attacker.criticalThreshold)
     damage = attacker.damageDie.arithMult(1 + criticalHits).op(lambda a: max(0, a + attacker.bonusToDamage))
     return damage
 
@@ -72,7 +77,10 @@ class Combatant:
       armorHitDamage = attacker.damageDie.op(lambda a: max(0, a + attacker.bonusToDamage - defender.resistance))
       return armorHitDamage
 
-    criticalHits = math.floor(((attackRoll + attacker.bonusToHit + attacker.fatigueModifier()) - (defender.evade + defender.armor)) / 5)
+    if (attacker.criticalThreshold is None):
+      criticalHits = 0
+    else:
+      criticalHits = math.floor(((attackRoll + attacker.bonusToHit + attacker.fatigueModifier()) - (defender.evade + defender.armor)) / attacker.criticalThreshold)
     criticalHitDamage = attacker.damageDie.arithMult(1 + criticalHits).op(lambda a: max(0, a + attacker.bonusToDamage))
     return criticalHitDamage
 
@@ -319,3 +327,23 @@ class Dnd2NealCombatant(DndCombatant):
       criticalHitDamage = attacker.damageDie.arithMult(1 + criticalHits).op(lambda a: max(1, a + attacker.bonusToDamage))
       return criticalHitDamage
     DndCombatant.__init__(self, hp, attackDie, bonusToHit, damageDie, bonusToDamage, ac, damageDensity = nealDamageDensity)
+
+class DndNealTestCombatant(Combatant):
+  def __init__(self, hp, bonusToHit, damageDie, bonusToDamage, evade, criticalThreshold, armor = 0, maxFatigue = None, bonusToHitUnarmored = None):
+    if (bonusToHitUnarmored is None):
+      bonusToHitUnarmored = bonusToHit
+
+    def nealTestDensity(attacker, defender, attackRoll):
+      armored = armor > 0
+      bonusToHit = attacker.bonusToHit if armored else attacker.bonusToHitUnarmored
+      excess = attackRoll + bonusToHit - defender.evade
+      if (excess < 0):
+        return Zero()
+
+      if attacker.criticalThreshold is None:
+        criticalHits = 0
+      else:
+        criticalHits = excess // attacker.criticalThreshold
+      damage = attacker.damageDie.arithMult(1 + criticalHits).op(lambda a: max(0, a + attacker.bonusToDamage))
+      return damage
+    Combatant.__init__(self, hp, d100, bonusToHit, damageDie, bonusToDamage, evade, resistance=armor, maxFatigue=maxFatigue, criticalThreshold=criticalThreshold, damageDensity = nealTestDensity, bonusToHitUnarmored = bonusToHitUnarmored)

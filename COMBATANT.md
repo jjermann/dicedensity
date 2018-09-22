@@ -35,6 +35,10 @@ A combatant has the following properties:
 * **`bonusToHit`**  
   A bonus value (an integer) that is added to the `attackDie` result at the end.
 
+* **`bonusToHitUnarmored`**  
+  It depends on the damage density if this value is used (ignored for default).
+  It's intended to be used as an (alternative) to `bonusToHit` in case the defender is not armored.
+
 * **`damageDie`**  
   The density that is used by the attacker to deal damage to the defender.
   For example `damageDie = d8`.
@@ -42,6 +46,11 @@ A combatant has the following properties:
 * **`bonusToDamage`**  
   A bonus value (an integer) that is added to the `damageDie` result at the
   The bonus value is only added once in case of critical hits.
+
+* **`criticalThreshold`**
+  It depends on the damage density if this value is used (applied for default).
+  Each damage excess in the amount of `criticalThreshold` leads to an additional/initial critical hit.
+  If `criticalThreshold = None` no critical damage is applied (default: 5).
 
 * **`evade`**  
   The evade value of the combatant (an integer).
@@ -302,8 +311,8 @@ The more genral damage density can be specified with the parameter `damageDensit
 Example:
 ```python3
     def dndDamageDensity(attacker, defender, attackRoll):
-      minValue = min(attacker.attackerDie.values())
-      maxValue = max(attacker.attackerDie.values())
+      minValue = min(attacker.attackDie.values())
+      maxValue = max(attacker.attackDie.values())
       if attackRoll == minValue:
         return Zero()
       if (attackRoll + attacker.bonusToHit) < defender.evade and attackRoll < maxValue:
