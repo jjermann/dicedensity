@@ -186,11 +186,18 @@ The following methods are defined on a given density `d`:
 There are various methods to simulate combats.
 If `precise=False` then the expected damage is used instead of aggregating all possible damage
 results, this makes the calculations *significantly faster* (around 100 times).
+If `simple=True` then it is assumed that the damage density remains the same
+for attacker and defender during the whole combat, this makes the calculations *significantly faster* as well.
 
-* **`Combatant.combatDistribution(attacker, defender, rounds = 1, chanceDefenderStarts = None, precise = True)`**  
+* **`damageDensityDistribution(self, defender)`**
+  Returns all possible damage densities against the specified defender together with the respective probability as a distribution.
+
+* **`Combatant.combatDistribution(attacker, defender, rounds = 1, chanceDefenderStarts = None, precise = True, simple = False)`**  
   Determines all possible combat end results after the given number of `rounds` together with their probabilities.
   If `chanceDefenderStarts` is specified then the defender has the specified chance to attack beforehand.
   If `precise=False` is specified then the expected damage is used for damage calculations (significantly faster but less precise end result).
+  If `simple=True` is specified then always the initial damage density distribution is used for the attacker and defender
+  (significantly faster but doesn't reflect changed attacker or defender conditions).
 
   A result is a tuple (attacker, defender). The method returns a dictionary of all possible results as keys and the corresponding probabilities as values.
   The result dictionary can then be used again for further calculations...
@@ -216,12 +223,14 @@ results, this makes the calculations *significantly faster* (around 100 times).
     print(fightUndecidedCondition)
   ```
 
-* **`Combatant.combatEventProbability(attacker, defender, cond, rounds = 1, chanceDefenderStarts = None, precise = True)`**  
+* **`Combatant.combatEventProbability(attacker, defender, cond, rounds = 1, chanceDefenderStarts = None, precise = True, simple = False)`**  
   Returns the probability of a specified event/condition `cond` after the specified amount of
   `rounds` of combat between the given `attacker` and `defender` (both `Combatant`).
   If `chanceDefenderStarts` is specified then the defender has the specified chance to attack beforehand.
   If `precise=False` is specified then the expected damage is used for damage calculations (significantly faster but less precise end result).
-  This is the same as calculating `d = Combatant.combatDistribution(attacker, defender, rounds, chanceDefenderStarts, precise)`
+  If `simple=True` is specified then always the initial damage density distribution is used for the attacker and defender
+  (significantly faster but doesn't reflect changed attacker or defender conditions).
+  This is the same as calculating `d = Combatant.combatDistribution(attacker, defender, rounds, chanceDefenderStarts, precise, simple)`
   and then calculating `p = Combatant.eventProbability(d, cond)`.
 
   Example:
@@ -245,12 +254,14 @@ results, this makes the calculations *significantly faster* (around 100 times).
     print(Combatant.resultDensity(d, attackerHpFunction))
   ```
 
-* **`Combatant.combatResultDensity(attacker, defender, op, rounds = 1, chanceDefenderStarts = None, precise = True)`**  
+* **`Combatant.combatResultDensity(attacker, defender, op, rounds = 1, chanceDefenderStarts = None, precise = True, simple = False)`**  
   Returns the Density over all possible results of `op(attacker, defender)`
   after a specified amount of `rounds` of combat between the given `attacker` and `defender`.
   If `chanceDefenderStarts` is specified then the defender has the specified chance to attack beforehand.
   If `precise=False` is specified then the expected damage is used for damage calculations (significantly faster but less precise end result).
-  This is the same as calculating `d = Combatant.combatDistribution(attacker, defender, rounds, chanceDefenderStarts, precise)`
+  If `simple=True` is specified then always the initial damage density distribution is used for the attacker and defender
+  (significantly faster but doesn't reflect changed attacker or defender conditions).
+  This is the same as calculating `d = Combatant.combatDistribution(attacker, defender, rounds, chanceDefenderStarts, precise, simple)`
   and then calculating `p = Combatant.resultDensity(d, op)`.
 
   Example:
@@ -275,24 +286,31 @@ results, this makes the calculations *significantly faster* (around 100 times).
     print(dRandomizedStart)
   ```
 
-* **`hpDensity(self, defender, rounds = 1, chanceDefenderStarts = None, precise = True)`**  
+* **`hpDensity(self, defender, rounds = 1, chanceDefenderStarts = None, precise = True, simple = False)`**  
   Returns the density of the possible HPs of the combatant after the specified amount of `rounds` of combat against the specified `defender`.
   If `chanceDefenderStarts` is specified then the defender has the specified chance to attack beforehand.
   If `precise=False` is specified then the expected damage is used for damage calculations (significantly faster but less precise end result).
+  If `simple=True` is specified then always the initial damage density distribution is used for the attacker and defender
+  (significantly faster but doesn't reflect changed attacker or defender conditions).
+  This is the same as calculating `d = Combatant.combatDistribution(attacker, defender, rounds, chanceDefenderStarts, precise, simple)`
 
   Example:
   ```python3
     print(combatant1.hpDensity(combatant2, rounds = 5))
   ```
 
-* **`winProbability(self, defender, chanceDefenderStarts = None, precise = True, maxError = 0.001)`**  
+* **`winProbability(self, defender, chanceDefenderStarts = None, precise = True, simple = False, maxError = 0.05, includeError = False)`**  
   Returns the probability that the combatant wins against the specified `defender` within the specified margin of error `maxError`.
   If `chanceDefenderStarts` is not specified then the attacker always starts.
-  If `precise=False` is specified then the expected damage is used for damage calculations (significantly faster but less precise end result).
   Otherwise the defender gets an initial attack according to the specified percentage
   (after that combatants always take turns as usual).
+  If `precise=False` is specified then the expected damage is used for damage calculations (significantly faster but less precise end result).
+  If `simple=True` is specified then always the initial damage density distribution is used for the attacker and defender
+  (significantly faster but doesn't reflect changed attacker or defender conditions).
+  If `includeError=True` is specified then a tuple `(p, minP, error)` is returned instead,
+  where `p` is the estimated probability, `minP` is a lower bound and `error` is an upper bound on the error.
 
-  :warning:  
+  :warning:
   Smaller values of `maxError` lead to slower calculations of the result.
 
   Example:
@@ -300,6 +318,15 @@ results, this makes the calculations *significantly faster* (around 100 times).
     print(combatant1.winProbability(combatant2))
     print(combatant1.winProbability(combatant2, chanceDefenderStarts = 0.5))
   ```
+
+* **`simpleWinProbability(self, defender, chanceDefenderStarts = 0.5, maxError = 0.001, includeError = False)`**
+  Returns the probability that the combatant wins against the specified `defender` using simplifications for increased performance.
+  The arguments are the same as for `winProbability`.
+  This is the same as calculating `p = self.winProbability(defender, chanceDefenderStarts = chanceDefenderStarts, precise = False, simple = True, maxError = maxError)`.
+
+  Example:
+  ```python3
+    print(combatant1.simpleWinProbability(combatant2))
 
 
 ### More general damage densities

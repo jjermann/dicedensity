@@ -204,6 +204,18 @@ class Density:
   def __repr__(self):
     return self.__str__()
 
+  def _state(self):
+    keys = self.keys()
+    return tuple(map(lambda k: (k, self.densities[k]), keys))
+
+  def __hash__(self):
+    return hash(self._state())
+
+  def __eq__(self, other):
+    if not isinstance(other, Density):
+      raise NotImplemented
+    return self._state() == other._state()
+
   @staticmethod
   def _getDensity(arg):
     if isinstance(arg, (int, float)):

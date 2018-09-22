@@ -41,8 +41,5 @@ print("Chance of Warrior to hit OgreBro:           {:>12.2%}".format(warriorHitO
 print("Expected damage of Warrior against OgreBro: {:>12.6}".format(warriorDmgAgainstOgre))
 print()
 
-maxError = 0.05
-ogreWinProb = ogreBro.winProbability(warrior, chanceDefenderStarts = 0.5, precise = False, maxError = maxError)
-print("Win probability of OgreBro against Warrior: {:>12.2%} +- {:.2%}".format(ogreWinProb, maxError))
-print()
-
+p = ogreBro.simpleWinProbability(warrior)
+print("Win probability of OgreBro against Warrior: {:>12.2%}".format(p))
