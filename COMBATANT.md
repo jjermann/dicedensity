@@ -186,8 +186,8 @@ The following methods are defined on a given density `d`:
 There are various methods to simulate combats.
 If `precise=False` then the expected damage is used instead of aggregating all possible damage
 results, this makes the calculations *significantly faster* (around 100 times).
-If `simple=True` then it is assumed that the damage density remains the same
-for attacker and defender during the whole combat, this makes the calculations *significantly faster* as well.
+If `simple=True` then it is assumed that the damage density remains the same for attacker and defender during the whole combat,
+this makes the calculations *significantly faster* as well but for instance doesn't consider exhaustion effects.
 
 * **`damageDensityDistribution(self, defender)`**
   Returns all possible damage densities against the specified defender together with the respective probability as a distribution.
