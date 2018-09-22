@@ -6,13 +6,32 @@ import heapq
 import matplotlib.pyplot as plt
 import random
 from itertools import product
-from functools import reduce
+from functools import reduce, lru_cache, wraps
 from statistics import median
 
 
 _operators = {ast.Add: op.add, ast.Sub: op.sub, ast.Mult: op.mul,
              ast.USub: op.neg,
              ast.Eq: op.eq, ast.NotEq: op.ne, ast.Lt: op.lt, ast.LtE: op.le, ast.Gt: op.gt, ast.GtE: op.ge}
+
+import functools
+import weakref
+
+def memoized_method(*lru_args, **lru_kwargs):
+    def decorator(func):
+        @wraps(func)
+        def wrapped_func(self, *args, **kwargs):
+            # We're storing the wrapped method inside the instance. If we had
+            # a strong reference to self the instance would never die.
+            self_weak = weakref.ref(self)
+            @wraps(func)
+            @lru_cache(*lru_args, **lru_kwargs)
+            def cached_method(*args, **kwargs):
+                return func(self_weak(), *args, **kwargs)
+            setattr(self, func.__name__, cached_method)
+            return cached_method(*args, **kwargs)
+        return wrapped_func
+    return decorator
 
 def _eval_expr(expr):
     return _eval(ast.parse(expr, mode='eval').body)
@@ -208,6 +227,7 @@ class Density:
   def isValid(self):
     return abs(1.0 - sum(self.values())) < 1e-09
 
+  @memoized_method()
   def arithMult(self, other):
     if isinstance(other, (int)) and other >= 0:
       if other == 0:
