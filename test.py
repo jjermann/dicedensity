@@ -5,18 +5,6 @@
 from densities import *
 from combatant import *
 
-def nealDamageDensity(attacker, defender, attackRoll):
-  excess = attackRoll + attacker.bonusToHit - defender.evade
-  if (excess < 0):
-    return Zero()
-
-  if attacker.criticalThreshold is None:
-    criticalHits = 0
-  else:
-    criticalHits = excess // attacker.criticalThreshold
-  damage = attacker.damageDie.arithMult(1 + criticalHits).op(lambda a: max(0, a + attacker.bonusToDamage))
-  return damage
-
 ogreBro = DndNealTestCombatant(   \
   hp                  = 100      ,\
   bonusToHit          = 0        ,\
