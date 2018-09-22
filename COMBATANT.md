@@ -173,8 +173,9 @@ The following methods are defined on a given density `d`:
   Note that it can also occur that a hit does 0 damage.
   In that case the defender still gains a fatigue value.
 
-* **`expectedDamage(self, defender)`**  
+* **`expectedDamage(self, defender, cond=None)`**  
   The expected damage against another combatant
+  Optionally a boolean condition `cond` on the damage densities can be specified.
 
 * **`plotDamage(self, defender)`**  
   Plots the expected damage against another combatant parametrized by possible attack rolls (from `attackDie`).
@@ -208,8 +209,9 @@ results, this makes the calculations *significantly faster* (around 100 times).
 If `simple=True` then it is assumed that the damage density remains the same for attacker and defender during the whole combat,
 this makes the calculations *significantly faster* as well but for instance doesn't consider exhaustion effects.
 
-* **`damageDensityDistribution(self, defender)`**  
+* **`damageDensityDistribution(self, defender, cond=None)`**  
   Returns all possible damage densities against the specified defender together with the respective probability as a distribution.
+  Optionally a boolean condition `cond` on the damage densities can be specified.
 
   Example:
   ```python3

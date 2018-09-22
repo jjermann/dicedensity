@@ -114,14 +114,19 @@ class Combatant:
   def damageDensity(self, defender, attackRoll):
     return self._damageDensity(self, defender, attackRoll)
 
-  def damageDensityDistribution(self, defender):
+  def damageDensityDistribution(self, defender, cond=None):
     d = {}
     for k in self.attackDie.keys():
       damageDensity = self.damageDensity(defender, k)
-      try:
-        d[damageDensity] += self.attackDie[k]
-      except KeyError:
-        d[damageDensity] = self.attackDie[k]
+      if cond is None or cond(damageDensity):
+        try:
+          d[damageDensity] += self.attackDie[k]
+        except KeyError:
+          d[damageDensity] = self.attackDie[k]
+    if not cond is None:
+      condProb = sum([p for p in d.values()])
+      for k in d:
+        d[k] /= condProb
     return d
 
   def chanceToHit(self, defender):
@@ -130,8 +135,8 @@ class Combatant:
     chance = sum([d[damageDensity]*(1.0 if isHit(damageDensity) else 0.0) for damageDensity in d])
     return chance
 
-  def expectedDamage(self, defender):
-    d = self.damageDensityDistribution(defender)
+  def expectedDamage(self, defender, cond=None):
+    d = self.damageDensityDistribution(defender,cond)
     return sum([d[damageDensity]*damageDensity.expected() for damageDensity in d])
 
   def plotDamage(self, defender):

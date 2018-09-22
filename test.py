@@ -31,17 +31,21 @@ warrior = DndNealTestCombatant(   \
 
 ogreHitWarrior = ogreBro.chanceToHit(warrior)
 ogreDmgAgainstWarrior = ogreBro.expectedDamage(warrior)
+ogreHitDmgAgainstWarrior = ogreBro.expectedDamage(warrior, lambda d: not isinstance(d, Zero))
 warriorHitOgre = warrior.chanceToHit(ogreBro)
 warriorDmgAgainstOgre = warrior.expectedDamage(ogreBro)
+warriorHitDmgAgainstOgre = warrior.expectedDamage(ogreBro, lambda d: not isinstance(d, Zero))
 
-print("Chance of OgreBro to hit Warrior:           {:>12.2%}".format(ogreHitWarrior))
-print("Expected damage of OgreBro against Warrior: {:>12.6}".format(ogreDmgAgainstWarrior))
+print("Chance of OgreBro to hit Warrior:                  {:>12.2%}".format(ogreHitWarrior))
+print("Expected damage of OgreBro against Warrior:        {:>12.6}".format(ogreDmgAgainstWarrior))
+print("Expected damage on hit of OgreBro against Warrior: {:>12.6}".format(ogreHitDmgAgainstWarrior))
 print()
-print("Chance of Warrior to hit OgreBro:           {:>12.2%}".format(warriorHitOgre))
-print("Expected damage of Warrior against OgreBro: {:>12.6}".format(warriorDmgAgainstOgre))
+print("Chance of Warrior to hit OgreBro:                  {:>12.2%}".format(warriorHitOgre))
+print("Expected damage of Warrior against OgreBro:        {:>12.6}".format(warriorDmgAgainstOgre))
+print("Expected damage on hit of Warrior against OgreBro: {:>12.6}".format(warriorHitDmgAgainstOgre))
 print()
 
 # warning: Precise probability (not working with average damage) is around 44.97% instead of 46.75%:
 #          p = ogreBro.winProbability(warrior, chanceDefenderStarts=0.5, precise=True, simple=True, maxError = 0.01)
 p = ogreBro.simpleWinProbability(warrior)
-print("Win probability of OgreBro against Warrior: {:>12.2%}".format(p))
+print("Win probability of OgreBro against Warrior:        {:>12.2%}".format(p))
