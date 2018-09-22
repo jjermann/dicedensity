@@ -346,7 +346,7 @@ this makes the calculations *significantly faster* as well but for instance does
 * **`simpleWinProbability(self, defender, chanceDefenderStarts = 0.5, maxError = 0.001, includeError = False)`**
   Returns the probability that the combatant wins against the specified `defender` using simplifications for increased performance.
   The arguments are the same as for `winProbability`.
-  This is the same as calculating `p = self.winProbability(defender, chanceDefenderStarts = chanceDefenderStarts, precise = False, simple = True, maxError = maxError)`.
+  This is the same as calculating `p = self.winProbability(defender, chanceDefenderStarts = 0.5, precise = False, simple = True, maxError = 0.01)`.
 
   Example:
   ```python3
