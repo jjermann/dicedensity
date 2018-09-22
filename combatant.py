@@ -384,6 +384,6 @@ class DndNealTestCombatant(Combatant):
         criticalHits = 0
       else:
         criticalHits = excess // attacker.criticalThreshold
-      damage = attacker.damageDie.arithMult(1 + criticalHits).op(lambda a: max(0, a + attacker.bonusToDamage))
+      damage = attacker.damageDie.arithMult(1 + criticalHits).op(lambda a: max(0, a + attacker.bonusToDamage - defender.resistance))
       return damage
     Combatant.__init__(self, hp, d100, bonusToHit, damageDie, bonusToDamage, evade, resistance=armor, maxFatigue=maxFatigue, criticalThreshold=criticalThreshold, damageDensity = nealTestDensity, bonusToHitUnarmored = bonusToHitUnarmored)
