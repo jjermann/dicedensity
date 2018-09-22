@@ -166,11 +166,11 @@ class Combatant:
       return {defender.clone(): 1.0}
 
     isHit = not isinstance(damageDensity, Zero)
-    applyFatigue = isHit and not defender.maxFatigue is None and defender.fatigue < defender.maxFatigue
 
     if not isHit:
       return {defender.clone(): 1.0}
 
+    applyFatigue = isHit and not defender.maxFatigue is None and defender.fatigue < defender.maxFatigue
     d = {}
     for damage in damageDensity.keys():
       clone = defender.clone()
@@ -193,7 +193,9 @@ class Combatant:
     clone = defender.clone()
     clone.hp -= damage
     clone.hp = max(0, clone.hp)
-    if isHit and not clone.maxFatigue is None and clone.fatigue < clone.maxFatigue:
+
+    applyFatigue = isHit and not clone.maxFatigue is None and clone.fatigue < clone.maxFatigue
+    if applyFatigue:
       clone.fatigue += 1
     return clone
 
