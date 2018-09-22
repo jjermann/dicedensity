@@ -289,6 +289,9 @@ Returns the median of the density
 * **`d.normalApproximation`**  
 Is the (continuous) Gauss map with the same standard deviation and expected value as the given density
 
+* **`d.isZero()`**
+Returns if d is the `Zero` density
+
 * **More general unary operations**  
 An arbitrary unary operation on the given density can be defined using the method `d.op(operation)`
 where `operation` is a function in one variable `operation(outcome)`

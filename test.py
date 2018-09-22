@@ -31,10 +31,10 @@ warrior = DndNealTestCombatant(   \
 
 ogreHitWarrior = ogreBro.chanceToHit(warrior)
 ogreDmgAgainstWarrior = ogreBro.expectedDamage(warrior)
-ogreHitDmgAgainstWarrior = ogreBro.expectedDamage(warrior, lambda d: not isinstance(d, Zero))
+ogreHitDmgAgainstWarrior = ogreBro.expectedDamage(warrior, lambda d: not d.isZero())
 warriorHitOgre = warrior.chanceToHit(ogreBro)
 warriorDmgAgainstOgre = warrior.expectedDamage(ogreBro)
-warriorHitDmgAgainstOgre = warrior.expectedDamage(ogreBro, lambda d: not isinstance(d, Zero))
+warriorHitDmgAgainstOgre = warrior.expectedDamage(ogreBro, lambda d: not d.isZero())
 
 print("Chance of OgreBro to hit Warrior:                  {:>12.2%}".format(ogreHitWarrior))
 print("Expected damage of OgreBro against Warrior:        {:>12.6}".format(ogreDmgAgainstWarrior))

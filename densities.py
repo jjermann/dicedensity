@@ -439,6 +439,9 @@ class Density:
 
     return Density(densities)
 
+  def isZero(self):
+    return isinstance(self, Zero)
+
 
 class Die(Density):
   def __init__(self, die):

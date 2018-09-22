@@ -131,7 +131,7 @@ class Combatant:
 
   def chanceToHit(self, defender):
     d = self.damageDensityDistribution(defender)
-    isHit = lambda damageDensity: not isinstance(damageDensity, Zero)
+    isHit = lambda damageDensity: not damageDensity.isZero()
     chance = sum([d[damageDensity]*(1.0 if isHit(damageDensity) else 0.0) for damageDensity in d])
     return chance
 
@@ -172,7 +172,7 @@ class Combatant:
     if (self.cantFight()):
       return {defender.clone(): 1.0}
 
-    isHit = not isinstance(damageDensity, Zero)
+    isHit = not damageDensity.isZero()
 
     if not isHit:
       return {defender.clone(): 1.0}
@@ -196,7 +196,7 @@ class Combatant:
       return defender.clone()
 
     damage = damageDensity.expected()
-    isHit = not isinstance(damageDensity, Zero)
+    isHit = not damageDensity.isZero()
     clone = defender.clone()
     clone.hp -= damage
     clone.hp = max(0, clone.hp)
