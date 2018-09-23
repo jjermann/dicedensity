@@ -25,7 +25,7 @@ class Combatant:
       res += ", Fatigue = {}/{}".format(self.fatigue, self.maxFatigue)
     if self.isDead():
       res += " (DEAD)"
-    else:
+    elif not self.maxFatigue is None:
       res += " (Fatigue: {})".format(self.fatigueState())
     return res
 
@@ -371,10 +371,12 @@ class DndCombatant(Combatant):
 
 class Dnd2NealCombatant(DndCombatant):
   def __init__(self, hp, attackDie, bonusToHit, damageDie, bonusToDamage, ac):
+    minAttack = min(attackDie.keys())
+    maxAttack = max(attackDie.keys())
     def nealDamageDensity(attacker, defender, attackRoll):
-      if attackRoll == 1:
+      if attackRoll == minAttack:
         return Zero()
-      if (attackRoll + attacker.bonusToHit) < defender.evade and attackRoll < 20:
+      if (attackRoll + attacker.bonusToHit) < defender.evade and attackRoll < maxAttack:
         return Zero()
 
       if attackRoll >= 18:
