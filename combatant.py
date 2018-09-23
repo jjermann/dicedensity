@@ -343,8 +343,8 @@ class Combatant:
 
     return p + up*p/(1-up)
 
-  def simpleWinProbability(self, defender, chanceDefenderStarts = 0.5, maxError = 0.001):
-    p = self.winProbability(defender, chanceDefenderStarts = chanceDefenderStarts, precise = False, simple = True, maxError = maxError)
+  def simpleWinProbability(self, defender, chanceDefenderStarts = 0.5, precise = False, maxError = 0.001):
+    p = self.winProbability(defender, chanceDefenderStarts = chanceDefenderStarts, precise = precise, simple = True, maxError = maxError)
     return p
 
 
