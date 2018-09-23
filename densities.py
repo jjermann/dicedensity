@@ -5,6 +5,7 @@ import math
 import heapq
 import matplotlib.pyplot as plt
 import random
+import weakref
 from itertools import product
 from functools import reduce, lru_cache, wraps
 from statistics import median
@@ -13,9 +14,6 @@ from statistics import median
 _operators = {ast.Add: op.add, ast.Sub: op.sub, ast.Mult: op.mul,
              ast.USub: op.neg,
              ast.Eq: op.eq, ast.NotEq: op.ne, ast.Lt: op.lt, ast.LtE: op.le, ast.Gt: op.gt, ast.GtE: op.ge}
-
-import functools
-import weakref
 
 def memoized_method(*lru_args, **lru_kwargs):
     def decorator(func):

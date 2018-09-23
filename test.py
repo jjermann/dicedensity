@@ -45,7 +45,7 @@ print("Expected damage of Warrior against OgreBro:        {:>12.6}".format(warri
 print("Expected damage on hit of Warrior against OgreBro: {:>12.6}".format(warriorHitDmgAgainstOgre))
 print()
 
-# warning: Precise probability (not working with average damage) is around 44.97% instead of 46.75%:
+# warning: Precise probability (not working with average damage) is around 44.9% instead of 46.75%:
 #          p = ogreBro.simpleWinProbability(warrior, precise=True)
 p = ogreBro.simpleWinProbability(warrior)
 print("Win probability of OgreBro against Warrior:        {:>12.2%}".format(p))

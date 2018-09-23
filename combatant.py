@@ -1,4 +1,3 @@
-
 from densities import *
 
 class Combatant:
@@ -207,49 +206,64 @@ class Combatant:
     return clone
 
   @staticmethod
-  def _adjustedAttackDistribution(d, reversed=False, precise=True, simple=False, attackerDmgDist=None, defenderDmgDist=None):
+  def _adjustedSingleAttackDistribution(state, pState, reversed=False, precise=True, simple=False, attackerDmgDist=None, defenderDmgDist=None):
     dNew = {}
+
+    attacker,defender = state
     if reversed:
       if simple:
         dd = defenderDmgDist
-      for (attacker, defender) in d:
-        if not simple:
-          dd = defender.damageDensityDistribution(attacker)
-        for damageDensity in dd:
-          if precise:
-            attackerD = defender._attackedCombatantDistribution(attacker, damageDensity)
-            for attackerNew in attackerD:
-              try:
-                dNew[(attackerNew, defender)] += dd[damageDensity]*d[(attacker, defender)]*attackerD[attackerNew]
-              except KeyError:
-                dNew[(attackerNew, defender)] = dd[damageDensity]*d[(attacker, defender)]*attackerD[attackerNew]
-          else:
-            attackerNew = defender._expectedAttackedCombatant(attacker, damageDensity)
+      else:
+        dd = defender.damageDensityDistribution(attacker)
+      for damageDensity in dd:
+        if precise:
+          attackerD = defender._attackedCombatantDistribution(attacker, damageDensity)
+          for attackerNew in attackerD:
             try:
-              dNew[(attackerNew, defender)] += dd[damageDensity]*d[(attacker, defender)]
+              dNew[(attackerNew, defender)] += dd[damageDensity]*pState*attackerD[attackerNew]
             except KeyError:
-              dNew[(attackerNew, defender)] = dd[damageDensity]*d[(attacker, defender)]
+              dNew[(attackerNew, defender)] = dd[damageDensity]*pState*attackerD[attackerNew]
+        else:
+          attackerNew = defender._expectedAttackedCombatant(attacker, damageDensity)
+          try:
+            dNew[(attackerNew, defender)] += dd[damageDensity]*pState
+          except KeyError:
+            dNew[(attackerNew, defender)] = dd[damageDensity]*pState
     else:
       if simple:
         dd = attackerDmgDist
-      for (attacker, defender) in d:
-        if not simple:
-          dd = attacker.damageDensityDistribution(defender)
-        for damageDensity in dd:
-          if precise:
-            defenderD = attacker._attackedCombatantDistribution(defender, damageDensity)
-            for defenderNew in defenderD:
-              try:
-                dNew[(attacker, defenderNew)] += dd[damageDensity]*d[(attacker, defender)]*defenderD[defenderNew]
-              except KeyError:
-                dNew[(attacker, defenderNew)] = dd[damageDensity]*d[(attacker, defender)]*defenderD[defenderNew]
-          else:
-            defenderNew = attacker._expectedAttackedCombatant(defender, damageDensity)
+      else:
+        dd = attacker.damageDensityDistribution(defender)
+      for damageDensity in dd:
+        if precise:
+          defenderD = attacker._attackedCombatantDistribution(defender, damageDensity)
+          for defenderNew in defenderD:
             try:
-              dNew[(attacker, defenderNew)] += dd[damageDensity]*d[(attacker, defender)]
+              dNew[(attacker, defenderNew)] += dd[damageDensity]*pState*defenderD[defenderNew]
             except KeyError:
-              dNew[(attacker, defenderNew)] = dd[damageDensity]*d[(attacker, defender)]
+              dNew[(attacker, defenderNew)] = dd[damageDensity]*pState*defenderD[defenderNew]
+        else:
+          defenderNew = attacker._expectedAttackedCombatant(defender, damageDensity)
+          try:
+            dNew[(attacker, defenderNew)] += dd[damageDensity]*pState
+          except KeyError:
+            dNew[(attacker, defenderNew)] = dd[damageDensity]*pState
+
     return dNew
+
+  @staticmethod
+  def _adjustedAttackDistribution(d, reversed=False, precise=True, simple=False, attackerDmgDist=None, defenderDmgDist=None):
+    dList = []
+    processState = lambda state: Combatant._adjustedSingleAttackDistribution(state, d[state], reversed=reversed, precise=precise, simple=simple, attackerDmgDist=attackerDmgDist, defenderDmgDist=defenderDmgDist)
+    resultList = map(processState, d)
+    dFinal = {}
+    for dNew in resultList:
+      for state in dNew:
+        try:
+          dFinal[state] += dNew[state]
+        except KeyError:
+          dFinal[state] = dNew[state]
+    return dFinal
 
   @staticmethod
   def _applyAttackRound(d, precise=True, simple=False, attackerDmgDist=None, defenderDmgDist=None):
